@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+
+<form action="zad1_correct.html">
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" required  placeholder="aaa@example.com">
+  <br>
+  <label for="kodPocztowy">Kod pocztowy:</label>
+  <input type="text" id="kodPocztowy" name="kodPocztowy" required  placeholder="90-123"
+  pattern="[0-9]{2}-[0-9]{3}" title="kod Pocztowy xx-xxx">
+  <br>
+  <label for="nip">nip:</label>
+  <input type="text" id="nip" name="nip" required placeholder="123-123-12-12"
+  pattern="[0-9]{3}-[0-9]{3}-[0-9]{2}-[0-9]{2}" title="nip np, 123-123-12-12">
+  <br>
+  <label for="numerDowodu">numer dowodu:</label>
+  <input type="text" id="numerDowodu" name="numerDowodu" required placeholder="ABC123456"
+  pattern="[A-Z]{3}[0-9]{6}" title="numer dowodu np. ABC123456">
+  <br>
+  <label for="ipv4">adres ipv4:</label>
+  <input type="text" id="ipv4" name="ipv4" required placeholder="192.168.1.1"
+  pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="ipv4 np. 192.168.1.1">
+  <br>
+  <label for="strona">strona www:</label>
+  <input type="url" id="strona" name="strona" required placeholder="https://www.google.pl"
+  pattern="http(s?)://(www.)?" title="strona http://www.google.pl">
+  <br>
+  <label for="path">sciezka:</label>
+  <input type="text" id="path" name="path" required placeholder="C:\windows\temp"
+  pattern="[a-z]:\\(([\w\.]+\\[\w.$]+)|([a-z]+))" title="litera dysku:\katalog systemu (windows, winnt, win, dos, msdos)\katalog podrzędny (np. C:\windows\temp lub d:\msdos)">
+  <br>
+    <label for="path">ScIeZkA:</label>
+  <input type="text" id="path" name="path" required placeholder="C:\windows\temp"
+  pattern="[a-zA-Z]:\\(([\w\.]+\\[\w.$]+)|([a-zA-Z]+))" title="litera dysku:\katalog systemu (windows, winnt, win, dos, msdos)\katalog podrzędny (np. C:\windows\temp lub d:\msdos)">
+  <br>
+  <label for="ipv6">adres ipv6:</label>
+  <input type="text" id="ipv6" name="ipv6" required placeholder="2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+  pattern="((^|:)([0-9a-fA-F]{0,4})){1,8}$" title="ipv6">
+  <br>  
+  <label for="tel">numer:</label>
+  <input type="text" id="tel" name="tel" required placeholder="609-123-321"
+  pattern="[1-9][0-9][0-9]-[0-9]{3}-[0-9]{3}" title="numer">
+  <br>  
+  
+  <input type="submit">
+</form>
+
+</body>
+</html>
