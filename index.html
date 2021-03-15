@@ -1,4 +1,30 @@
 ﻿<!DOCTYPE html>
+<head>
+<style> 
+input {
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 3px solid #000;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  outline: none;
+}
+
+input:invalid {
+  border: 3px solid #d91818;
+}
+
+input:valid {
+  border: 3px solid #4ea832;
+}
+
+input[type=submit] {
+  border: 3px solid #000;
+}
+
+</style>
+</head>
 <html>
 <body>
 
@@ -46,7 +72,20 @@
   <input type="text" id="tel" name="tel" required placeholder="609-123-321"
   pattern="[1-9][0-9][0-9]-[0-9]{3}-[0-9]{3}" title="numer">
   <br>  
-  
+  <label for="date">Data:</label>
+<input type="date" id="date" name="data">
+  <br>  
+  <label for="date2">Data pn-pt:</label>
+<input type="date" id="date2" name="data2" min="2021-03-15" max="2021-03-19" required>
+  <br>  
+<label for="appt">godzina 24h</label>
+
+<input type="time" id="appt" name="appt" required>
+<br>
+  <label for="appt">godzina 12h</label>
+
+<input type="time" id="appt" name="appt" min="00:00" max="11:59" required>
+<br>
   <input type="submit">
 </form>
 
