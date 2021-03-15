@@ -34,6 +34,10 @@
   <input type="text" id="path" name="path" required placeholder="C:\windows\temp"
   pattern="[a-zA-Z]:\\(([\w\.]+\\[\w.$]+)|([a-zA-Z]+))" title="litera dysku:\katalog systemu (windows, winnt, win, dos, msdos)\katalog podrzędny (np. C:\windows\temp lub d:\msdos)">
   <br>
+<label for="dirpath_etc">Ścieżka etc:</label>
+  <input type="text" id="dirpath_etc" name="dirpath_etc" pattern="^(/etc/).*" required placeholder="/etc/hosts"
+  title="Ścieżka etc">
+<br>
   <label for="ipv6">adres ipv6:</label>
   <input type="text" id="ipv6" name="ipv6" required placeholder="2001:0db8:85a3:0000:0000:8a2e:0370:7334"
   pattern="((^|:)([0-9a-fA-F]{0,4})){1,8}$" title="ipv6">
