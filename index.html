@@ -2,169 +2,136 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Drag and drop - HTML5 Canvas</title>
+<title>zad 4</title>
+<style>
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
+
+#columns {
+  list-style-type: none;
+}
+
+.column {
+  width: 162px;
+  padding-bottom: 2px;
+  padding-top: 2px;
+  text-align: center;
+  cursor: move;
+}
+.column header {
+  height: 20px;
+  width: 500px;
+  color: black;
+  background-color: #ccc;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+  border-radius: 10px;
+  border: 2px solid #666666;
+}
+
+.column.dragElem {
+  opacity: 0.4;
+}
+.column.over {
+  //border: 2px dashed #000;
+  border-top: 2px solid blue;
+}
+
+</style>
 </head>
 <body>
-<button onclick="createklocki()">Nowy klocek</button>
-<div style="top: 50px; text-align:center">
-<canvas id="canvas" width="600" height="450" style="border:1px solid black;"></canvas>
-</div>
+<ul id="columns" contenteditable='true'>
+  <li class="column" contenteditable='true' draggable="true"><header>drag n' drop me</header></li>
+  <li class="column" contenteditable='true' draggable="true"><header>...</header></li>
+  <li class="column" contenteditable='true' draggable="true"><header>...</header></li>
+  <li class="column" contenteditable='true' draggable="true"><header>...</header></li>
+  <li class="column" contenteditable='true' draggable="true"><header>...</header></li>
+</ul>
 <script type="text/javascript">
-	var canvas = document.getElementById("canvas"), ctx = canvas.getContext("2d");
-	var klocki = [], drag = false, mouseX, mouseY, dragHoldX, dragHoldY;
-	var r = 40;
-	var minX = 0;
-	var maxX = canvas.width - r;
-	var minY = 0;
-	var maxY = canvas.height - r;
+	var dragSrcEl = null;
 
-	function createklocki()
-	{
+function handleDragStart(e) {
+  // Target (this) element is the source node.
+  dragSrcEl = this;
 
-		//var x = Math.random()*(canvas.width - r);
-		//var y = Math.random()*(canvas.height - r);
-var x = 0;
-var y = 0;
-		var color = "rgb(" + Math.floor(Math.random()*255) + "," + Math.floor(Math.random()*255) + "," + Math.floor(Math.random()*255) +")";
-		klocki.push({x:x,y:y,r:r,color:color});
-		drawklocki();
-	}
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', this.outerHTML);
 
-	function drawklocki()
-	{
-		var i, len = klocki.length;
-		for(i=0;i<len;i++)
-		{
-			ctx.fillStyle = klocki[i].color;
-			ctx.beginPath();
-			ctx.fillRect(klocki[i].x, klocki[i].y, klocki[i].r, klocki[i].r)
-			ctx.fill();
-		}
-	}
+  this.classList.add('dragElem');
+}
+function handleDragOver(e) {
+  if (e.preventDefault) {
+    e.preventDefault(); // Necessary. Allows us to drop.
+  }
+  this.classList.add('over');
 
-	function mouseDown(e)
-	{
-		var i, len = klocki.length;
-		var bRect = canvas.getBoundingClientRect();
-		mouseX = (e.clientX - bRect.left);
-		mouseY = (e.clientY - bRect.top);
-		for (i=0; i < len; i++) {
-			if(inCircle(klocki[i], mouseX, mouseY)) 
-			{
-				drag = true;
-				dragHoldX = mouseX - klocki[i].x;
-				dragHoldY = mouseY - klocki[i].y;
-				dragIndex = i;
-			}
-		}
-		if (drag) 
-		{
-			window.addEventListener("mousemove", mouseMove, false);
-		}
-		canvas.removeEventListener("mousedown", mouseDown, false);
-		window.addEventListener("mouseup", mouseUp, false);
-		return false;		
-	}
-	function mouseMove(e)
-	{
-//if(dragIndex == 0){
-		var posX, posY;
-		var r = klocki[dragIndex].r;
-		//var minX = r;
-		//var maxX = canvas.width - r;
-		//var minY = r;
-		//var maxY = canvas.height - r;
-		//var minX = 0;
-		//var maxX = canvas.width - r;
-		//var minY = 0;
-		//var maxY = canvas.height - r;
+  e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
 
+  return false;
+}
 
-		var bRect = canvas.getBoundingClientRect();
-		mouseX = (e.clientX - bRect.left);
-		mouseY = (e.clientY - bRect.top);
-		
-		posX = mouseX - dragHoldX;
-		posX = (posX < minX) ? minX : ((posX > maxX) ? maxX : posX);
-		posY = mouseY - dragHoldY;
-		posY = (posY < minY) ? minY : ((posY > maxY) ? maxY : posY);
-		
-		if(klocki.length > 1){
-		for (i=0; i < klocki.length; i++) {
-			if(i == dragIndex){
-				continue;
-			}
-			
-			
-			var a = klocki[dragIndex].x + klocki[dragIndex].r - klocki[i].x;
-			var b = klocki[i].x + klocki[i].r - klocki[dragIndex].x; 
-			var c = klocki[dragIndex].y + klocki[dragIndex].r - klocki[i].y;
-			var d = klocki[i].y + klocki[i].r - klocki[dragIndex].y
+function handleDragEnter(e) {
+  // this / e.target is the current hover target.
+}
 
-				if (klocki[i].x < klocki[dragIndex].x + klocki[dragIndex].r &&
-				   klocki[i].x + klocki[i].r > klocki[dragIndex].x && 
-				   klocki[i].y < klocki[dragIndex].y + klocki[dragIndex].r &&
-				   klocki[i].y + klocki[i].r > klocki[dragIndex].y){
-				    
-				    
-				    if(klocki[i].x < klocki[dragIndex].x + klocki[dragIndex].r){
-				   		klocki[dragIndex].x = klocki[dragIndex].x - a ;
-				   }
-				   else if(klocki[i].x + klocki[i].r > klocki[dragIndex].x){
-				   	klocki[dragIndex].x = klocki[dragIndex].x + b;
-				   	}
-				   
-				   
-				   if(klocki[i].y < klocki[dragIndex].y + klocki[dragIndex].r){
-				   	klocki[dragIndex].y = klocki[dragIndex].y - c;
-				   }
-				   else if (klocki[i].y + klocki[i].r > klocki[dragIndex].y){
-				   	klocki[dragIndex].y = klocki[dragIndex].y + d;
-				   }
-				   
-				    
-				}
-				else{
-					klocki[dragIndex].x = posX;
-					klocki[dragIndex].y = posY
-				}
+function handleDragLeave(e) {
+  this.classList.remove('over');  // this / e.target is previous target element.
+}
+
+function handleDrop(e) {
+  // this/e.target is current target element.
+
+  if (e.stopPropagation) {
+    e.stopPropagation(); // Stops some browsers from redirecting.
+  }
+
+  // Don't do anything if dropping the same column we're dragging.
+  if (dragSrcEl != this) {
+    // Set the source column's HTML to the HTML of the column we dropped on.
+    //alert(this.outerHTML);
+    //dragSrcEl.innerHTML = this.innerHTML;
+    //this.innerHTML = e.dataTransfer.getData('text/html');
+    this.parentNode.removeChild(dragSrcEl);
+    var dropHTML = e.dataTransfer.getData('text/html');
+    this.insertAdjacentHTML('beforebegin',dropHTML);
+    var dropElem = this.previousSibling;
+    addDnDHandlers(dropElem);
+    
+  }
+  this.classList.remove('over');
+  return false;
+}
+
+function handleDragEnd(e) {
+  // this/e.target is the source node.
+  this.classList.remove('over');
+
+  /*[].forEach.call(cols, function (col) {
+    col.classList.remove('over');
+  });*/
+}
+
+function addDnDHandlers(elem) {
+  elem.addEventListener('dragstart', handleDragStart, false);
+  elem.addEventListener('dragenter', handleDragEnter, false)
+  elem.addEventListener('dragover', handleDragOver, false);
+  elem.addEventListener('dragleave', handleDragLeave, false);
+  elem.addEventListener('drop', handleDrop, false);
+  elem.addEventListener('dragend', handleDragEnd, false);
+
+}
+
+var cols = document.querySelectorAll('#columns .column');
+[].forEach.call(cols, addDnDHandlers);
 
 
-
-		}
-		}
-		else{
-			klocki[dragIndex].x = posX;
-			klocki[dragIndex].y = posY;
-		}
-		
-		ctx.clearRect(0,0,canvas.width, canvas.height);
-		drawklocki();
-
-	}
-	function mouseUp()
-	{
-		canvas.addEventListener("mousedown", mouseDown, false);
-		window.removeEventListener("mouseup", mouseUp, false);
-		if (drag) 
-		{
-			drag = false;
-			window.removeEventListener("mousemove", mouseMove, false);
-		}
-	}
-	canvas.addEventListener("mousedown", mouseDown, false);
-	function inCircle(circle,mx,my)
-	{
-		var imageData = ctx.getImageData(mx, my, 1, 1), index = (mx + my * imageData.width) * 4;
-		if (imageData.data[3] > 0 && circle.color=="rgb(" + imageData.data[0] + "," + imageData.data[1] + "," + imageData.data[2] +")") 
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
 </script>
 </body>
 </html>
