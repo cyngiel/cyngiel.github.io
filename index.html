@@ -55,7 +55,6 @@ input[type=submit] {
     </p>
 
     <script>
-        // Helpers for working with indexedDB API.
 
         var indexedDB = window.indexedDB ||
                         window.webkitIndexedDB ||
@@ -67,8 +66,7 @@ input[type=submit] {
                 var openReq = indexedDB.open(name, version);
                 openReq.onsuccess = function(e) {
                     var db = e.target.result;
-                    // Chrome 23 still has setVersion so don't upgrade
-                    // unless the version is still old.
+
                     if ('setVersion' in db && db.version < version) {
                         var setVerReq = db.setVersion(version);
                         setVerReq.onsuccess = function(e) {
@@ -81,7 +79,6 @@ input[type=submit] {
                     }
                 };
                 openReq.onupgradeneeded = function(e) {
-                    // Never gets raised before Chrome 23.
                     console.log('upgrading');
                     upgrade(e.target.result);
                 };
@@ -140,7 +137,6 @@ input[type=submit] {
     </script>
 
     <script>
-        // The actual script for this page.
 
         var databaseName = 'ContactsDB';
         var contactsStoreName = 'contacts';
