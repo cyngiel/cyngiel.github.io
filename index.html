@@ -1,129 +1,5 @@
 <!DOCTYPE html>
 <head>
-<<<<<<< HEAD
-    <meta charset="utf-8">
-    
-     <style> 
-input {
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  border: 3px solid #000;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
-  outline: none;
-}
-
-input:invalid {
-  border: 3px solid #d91818;
-}
-
-input:valid {
-  border: 3px solid #4ea832;
-}
-
-input[type=submit] {
-  border: 3px solid #000;
-}
-</style>
-
-
-</head>
-<body>
-
-    <p>
-        <fieldset id="addForm">
-            <legend>Add Contact</legend>
-            <label>Name</label>
-            <input id="nameInput" required="true">
-            <label>Email</label>
-            <input type="email" id="emailInput" name="email" required="true" placeholder="aaa@example.com">
-            <button id="addButton" type="submit">Add</button>
-        </fieldset>
-    </p>
-
-    <table id="contacts">
-        <thead>
-            <tr><th>Name</th><th>Email</th></tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-
-    <p>
-        <button id="deleteButton">Delete database</button>
-    </p>
-
-    <script>
-
-        var indexedDB = window.indexedDB ||
-                        window.webkitIndexedDB ||
-                        window.mozIndexedDB;
-
-        function DB(name) {
-            this.init = function(version, upgrade, done) {
-                console.log('init');
-                var openReq = indexedDB.open(name, version);
-                openReq.onsuccess = function(e) {
-                    var db = e.target.result;
-
-                    if ('setVersion' in db && db.version < version) {
-                        var setVerReq = db.setVersion(version);
-                        setVerReq.onsuccess = function(e) {
-                            console.log('upgrading');
-                            upgrade(e.target.result.db);
-                            done();
-                        };
-                    } else {
-                        done();
-                    }
-                };
-                openReq.onupgradeneeded = function(e) {
-                    console.log('upgrading');
-                    upgrade(e.target.result);
-                };
-                openReq.onerror = function(e) {
-                    console.log('init error');
-                };
-                openReq.onblocked = function(e) {
-                    console.log('init blocked');
-                };
-            };
-
-            this.read = function(stores, fn, done) {
-                return this.transaction('readonly', stores, fn, done);
-            };
-
-            this.readWrite = function(stores, fn, done) {
-                return this.transaction('readwrite', stores, fn, done);
-            };
-
-            this.transaction = function(mode, stores, fn, done) {
-                var openReq = indexedDB.open(name);
-                openReq.onsuccess = function(e) {
-                    var db = e.target.result;
-                    var tx = db.transaction(stores, mode);
-                    tx.oncomplete = function(e) {
-                        if (done) {
-                            done();
-                        }
-                    };
-                    tx.onabort = function(e) {
-                        console.log('tx abort');
-                    };
-                    tx.onerror = function(e) {
-                        console.log('tx error');
-                    };
-                    fn(tx);
-                };
-                openReq.onerror = function(e) {
-                    console.log('open tx error');
-                };
-            };
-        }
-
-        DB.deleteDatabase = function(name, done) {
-=======
   <style>
     input:invalid {
       border-color: rgb(197, 3, 3);
@@ -155,7 +31,6 @@ input[type=submit] {
   };
 
   DB.deleteDatabase = function(name, done) {
->>>>>>> zad5
             var delReq = indexedDB.deleteDatabase(name);
             delReq.onsuccess = function(e) {
                 done();
@@ -167,52 +42,6 @@ input[type=submit] {
                 console.log('delete blocked');
             };
         };
-<<<<<<< HEAD
-    </script>
-
-    <script>
-
-        var databaseName = 'ContactsDB';
-        var contactsStoreName = 'contacts';
-
-        var contactsDB = new DB(databaseName);
-
-        var contacts = document.getElementById('contacts');
-
-        contactsDB.init(1, function(db) {
-            db.createObjectStore(contactsStoreName, {
-                autoIncrement: true
-            });
-        }, function() {
-            console.log('ready');
-
-            loadContactsTable();
-        });
-
-        function loadContactsTable() {
-            contactsDB.read([ contactsStoreName ], function(tx) {
-                var cursor = tx.objectStore(contactsStoreName).openCursor();
-                cursor.onsuccess = function(e) {
-                    if (e.target.result) {
-                        addContactToTable(e.target.result.value);
-                        e.target.result.continue();
-                    }
-                };
-                cursor.onerror = function(e) {
-                    console.log('cursor error');
-                };
-            });
-        }
-
-        function addContactToTable(contact) {
-            var newRow = contacts.insertRow(-1);
-            var nameCell = newRow.insertCell(-1);
-            nameCell.textContent = contact.name;
-            var emailCell = newRow.insertCell(-1);
-            emailCell.textContent = contact.email;
-        }
-=======
->>>>>>> zad5
 
     document.getElementById('deleteButton').onclick = function(e) {
             e.preventDefault();
