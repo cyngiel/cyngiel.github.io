@@ -1,131 +1,36 @@
 <!DOCTYPE html>
-<html>
 <head>
-    <meta charset="utf-8">
-    
-     <style> 
-input {
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  border: 3px solid #000;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
-  outline: none;
-}
+  <style>
+    input:invalid {
+      border-color: rgb(197, 3, 3);
+    }
+    input:valid {
+      border-color: rgb(36, 175, 36);
+    }
+  </style>
+<script>
+  window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+  window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"}; 
+  window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-input:invalid {
-  border: 3px solid #d91818;
-}
+  if (!window.indexedDB) {
+    window.alert("Your browser doesn't support the IndexedDB.");
+  }
 
-input:valid {
-  border: 3px solid #4ea832;
-}
+  function init(){
+    var request = window.indexedDB.open("ClientDatabase", 1);
+    request.onerror = function(event) {
+      alert("Error faced while opening database");
+    };
+    request.onsuccess = function(event) {
+      db = event.target.result;
+      db.onerror = function(event) {
+        alert("Database error: " + event.target.errorCode);
+      };
+      updatetable();
+  };
 
-input[type=submit] {
-  border: 3px solid #000;
-}
-</style>
-
-
-</head>
-<body>
-
-    <p>
-        <fieldset id="addForm">
-            <legend>Add Contact</legend>
-            <label>Name</label>
-            <input id="nameInput" required="true">
-            <label>Email</label>
-            <input type="email" id="emailInput" name="email" required="true" placeholder="aaa@example.com">
-            <button id="addButton" type="submit">Add</button>
-        </fieldset>
-    </p>
-
-    <table id="contacts">
-        <thead>
-            <tr><th>Name</th><th>Email</th></tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-
-    <p>
-        <button id="deleteButton">Delete database</button>
-    </p>
-
-    <script>
-        // Helpers for working with indexedDB API.
-
-        var indexedDB = window.indexedDB ||
-                        window.webkitIndexedDB ||
-                        window.mozIndexedDB;
-
-        function DB(name) {
-            this.init = function(version, upgrade, done) {
-                console.log('init');
-                var openReq = indexedDB.open(name, version);
-                openReq.onsuccess = function(e) {
-                    var db = e.target.result;
-                    // Chrome 23 still has setVersion so don't upgrade
-                    // unless the version is still old.
-                    if ('setVersion' in db && db.version < version) {
-                        var setVerReq = db.setVersion(version);
-                        setVerReq.onsuccess = function(e) {
-                            console.log('upgrading');
-                            upgrade(e.target.result.db);
-                            done();
-                        };
-                    } else {
-                        done();
-                    }
-                };
-                openReq.onupgradeneeded = function(e) {
-                    // Never gets raised before Chrome 23.
-                    console.log('upgrading');
-                    upgrade(e.target.result);
-                };
-                openReq.onerror = function(e) {
-                    console.log('init error');
-                };
-                openReq.onblocked = function(e) {
-                    console.log('init blocked');
-                };
-            };
-
-            this.read = function(stores, fn, done) {
-                return this.transaction('readonly', stores, fn, done);
-            };
-
-            this.readWrite = function(stores, fn, done) {
-                return this.transaction('readwrite', stores, fn, done);
-            };
-
-            this.transaction = function(mode, stores, fn, done) {
-                var openReq = indexedDB.open(name);
-                openReq.onsuccess = function(e) {
-                    var db = e.target.result;
-                    var tx = db.transaction(stores, mode);
-                    tx.oncomplete = function(e) {
-                        if (done) {
-                            done();
-                        }
-                    };
-                    tx.onabort = function(e) {
-                        console.log('tx abort');
-                    };
-                    tx.onerror = function(e) {
-                        console.log('tx error');
-                    };
-                    fn(tx);
-                };
-                openReq.onerror = function(e) {
-                    console.log('open tx error');
-                };
-            };
-        }
-
-        DB.deleteDatabase = function(name, done) {
+  DB.deleteDatabase = function(name, done) {
             var delReq = indexedDB.deleteDatabase(name);
             delReq.onsuccess = function(e) {
                 done();
@@ -137,94 +42,212 @@ input[type=submit] {
                 console.log('delete blocked');
             };
         };
-    </script>
 
-    <script>
-        // The actual script for this page.
-
-        var databaseName = 'ContactsDB';
-        var contactsStoreName = 'contacts';
-
-        var contactsDB = new DB(databaseName);
-
-        var contacts = document.getElementById('contacts');
-
-        contactsDB.init(1, function(db) {
-            db.createObjectStore(contactsStoreName, {
-                autoIncrement: true
-            });
-        }, function() {
-            console.log('ready');
-
-            loadContactsTable();
-        });
-
-        function loadContactsTable() {
-            contactsDB.read([ contactsStoreName ], function(tx) {
-                var cursor = tx.objectStore(contactsStoreName).openCursor();
-                cursor.onsuccess = function(e) {
-                    if (e.target.result) {
-                        addContactToTable(e.target.result.value);
-                        e.target.result.continue();
-                    }
-                };
-                cursor.onerror = function(e) {
-                    console.log('cursor error');
-                };
-            });
-        }
-
-        function addContactToTable(contact) {
-            var newRow = contacts.insertRow(-1);
-            var nameCell = newRow.insertCell(-1);
-            nameCell.textContent = contact.name;
-            var emailCell = newRow.insertCell(-1);
-            emailCell.textContent = contact.email;
-        }
-
-        var nameInput = document.getElementById('nameInput');
-        var emailInput = document.getElementById('emailInput');
-
-        document.getElementById('addButton').onclick = function(e) {
-            e.preventDefault();
-
-            var name = nameInput.value;
-            var email = emailInput.value;
-
-            console.log('adding');
-
-            contactsDB.readWrite([ contactsStoreName ], function(tx) {
-                var contact = {
-                    name: name,
-                    email: email
-                };
-
-                tx.objectStore(contactsStoreName).put(contact);
-
-                addContactToTable(contact);
-            }, function() {
-                console.log('added');
-
-                nameInput.value = '';
-                emailInput.value = '';
-
-                nameInput.focus();
-            });
-        };
-
-        
-
-
-        document.getElementById('deleteButton').onclick = function(e) {
+    document.getElementById('deleteButton').onclick = function(e) {
             e.preventDefault();
 
             console.log('deleting');
 
-            DB.deleteDatabase(databaseName, function() {
+            DB.deleteDatabase("ClientDatabase", function() {
                 console.log('deleted');
             });
             location.reload();
         };
-    </script>
+        
+  request.onupgradeneeded = function(event) {  
+    var db = event.target.result;
+    var objectStore = db.createObjectStore("clients", {keyPath: "id", autoIncrement: true});
+    objectStore.createIndex("name", "name", {unique: false});
+    objectStore.createIndex("surname", "surname", {unique: false});
+    objectStore.createIndex("email", "email", {unique: false});
+    objectStore.createIndex("address", "address", {unique: false});
+    objectStore.createIndex("city", "city", {unique: false});
+    objectStore.createIndex("postal", "postal", {unique: false});
+    objectStore.createIndex("id_card", "id_card", {unique: false});
+    objectStore.createIndex("phone", "phone", {unique: false});
+    objectStore.transaction.oncomplete = function(event) {
+      
+    };
+  };
+
+  document.getElementById('addClientForm').onsubmit = function(e) {
+    var bname = document.getElementById('nameInput').value;
+    var bsurname = document.getElementById('surnameInput').value;
+    var bemail = document.getElementById('emailInput').value;
+    var baddress = document.getElementById('addressInput').value;
+    var bcity = document.getElementById('cityInput').value;
+    var bpostal = document.getElementById('postalInput').value;
+    var bid_card = document.getElementById('idCardInput').value;
+    var bphone = document.getElementById('phoneInput').value;
+
+    if (!bname || !bsurname || !bemail || !baddress || !bcity || !bpostal || !bphone) {
+      window.alert("Fill the form correctly!");
+      return;
+    }
+
+    const book_item = {
+      name: bname,
+      surname: bsurname,
+      email: bemail,
+      address: baddress, 
+      city: bcity, 
+      postal: bpostal,
+      id_card: bid_card,
+      phone: bphone
+    }
+    var transaction = db.transaction(["clients"], "readwrite");
+    transaction.oncomplete = function(event) {
+      console.log("all done with transaction");
+    };
+    transaction.onerror = function(event){
+      console.dir(event);
+    };
+    var clientsObjectStore = transaction.objectStore("clients");
+    var request = clientsObjectStore.add(book_item);
+    request.onsuccess = function(event){
+      console.log("added item");
+    };
+
+    updatetable();
+
+  }
+
+  document.getElementById('filterButton').onclick = function(e){
+    var filter = document.getElementById('filterInput').value;
+    if (!filter) {
+      filter = "";
+    }
+    filter = filter.toLowerCase();
+    
+    document.getElementById("clients-table-body").innerHTML = "";
+    var request = db.transaction("clients").objectStore("clients").openCursor();
+    request.onerror = function(event){
+      console.dir(event);
+    };
+    request.onsuccess = function(event){
+      cursor = event.target.result;
+
+      if(cursor) {
+        if 
+          ((cursor.key.toString().localeCompare(filter) == 0 ||
+          cursor.value.name.toLowerCase().includes(filter) || 
+          cursor.value.surname.toLowerCase().includes(filter) || 
+          cursor.value.email.toLowerCase().includes(filter) || 
+          cursor.value.address.toLowerCase().includes(filter) || 
+          cursor.value.city.toLowerCase().includes(filter) || 
+          cursor.value.postal.toLowerCase().includes(filter) || 
+          cursor.value.id_card.toLowerCase().includes(filter) || 
+          cursor.value.phone.toLowerCase().includes(filter)
+        )) {
+          document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
+            "</td><td>" + cursor.value.name 
+              + "</td><td>" + cursor.value.surname
+              + "</td><td>" + cursor.value.email
+              + "</td><td>" + cursor.value.address
+              + "</td><td>" + cursor.value.city 
+              + "</td><td>" + cursor.value.postal
+              + "</td><td>" + cursor.value.id_card
+              + "</td><td>" + cursor.value.phone
+              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+              + "</td></tr>";
+        }
+        document.getElementById('delButton').onclick = function(e){
+          var id_del = parseInt(document.getElementById('delButton').value);
+          var request = db.transaction(["clients"], "readwrite").objectStore("clients").delete(id_del);
+          updatetable();
+        }
+        cursor.continue();
+      }
+    };
+  }
+
+  function updatetable(){
+    document.getElementById("clients-table-body").innerHTML = "";
+    var request = db.transaction("clients").objectStore("clients").openCursor();
+    request.onerror = function(event){
+      console.dir(event);
+    };
+    request.onsuccess = function(event){
+      cursor = event.target.result;
+
+      if (cursor) {
+        document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
+          "</td><td>" + cursor.value.name 
+            + "</td><td>" + cursor.value.surname
+            + "</td><td>" + cursor.value.email
+            + "</td><td>" + cursor.value.address
+            + "</td><td>" + cursor.value.city 
+            + "</td><td>" + cursor.value.postal
+            + "</td><td>" + cursor.value.id_card
+            + "</td><td>" + cursor.value.phone
+            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+            + "</td></tr>";
+
+            document.getElementById('delButton').onclick = function(e){
+              var id_del = parseInt(document.getElementById('delButton').value);
+              var request = db.transaction(["clients"], "readwrite").objectStore("clients").delete(id_del);
+              updatetable();
+            }
+          }
+          cursor.continue();
+      }
+    };
+
+  }
+
+</script>
+</head>
+
+<body onload="init()">
+    <p>
+      <form id="addClientForm">
+        <fieldset id="addForm">
+          <legend>Nacisnij Enter aby zatwierdzic</legend>
+
+          <label>Imie</label>
+          <input id="nameInput" placeholder="Imie" required="true">
+          <label>Nazwisko</label>
+          <input id="surnameInput" placeholder="Nazwisko" required="true">
+          <label for="email">Email</label>
+          <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
+          <label for="phoneNumber">Tel.</label>
+          <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true"><br>
+          <label for="address">Adres</label>
+          <input type="text" id="addressInput" placeholder="ulica + numer" required="true">
+          <label>Miasto</label>
+          <input id="cityInput" placeholder="Miasto" required="true">         
+          <label for="postalCode">Kod pocztowy</label>
+          <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
+          <label for="idCard">nr. dowodu</label>
+          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z]{3}[0-9]{6}"  maxlength="9" required="true">
+          
+      </fieldset>
+        <p>
+            <label>Keyword</label>
+            <input id="filterInput">
+            <button id="filterButton">Szukaj</button> 
+        </p>
+
+    </p>
+
+    <table id="clients-table">
+        <thead>
+          <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Surname</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>Zip Code</th>
+              <th>ID Card</th>
+              <th>Phone number</th>
+            </tr>
+        </thead>
+        <tbody id="clients-table-body">
+        </tbody>
+    </table>
+    <br>
+    <button id="deleteButton">Usun baze</button>
 </body>
 </html>
