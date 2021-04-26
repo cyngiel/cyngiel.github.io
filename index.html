@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <head>
-  <title>form</title>
   <style>
     input:invalid {
       border-color: rgb(197, 3, 3);
@@ -30,6 +29,24 @@
       };
       updatetable();
   };
+  function randomText(textArray) {
+    var randomIndex = Math.floor(Math.random() * textArray.length); 
+    var randomElement = textArray[randomIndex];
+    return randomElement;
+  }
+  const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  document.getElementById('generateButton').onclick = function(e){
+    document.getElementById("nameInput").value = randomText(['Michał', 'Ola', 'Jola', 'Zofia', 'Kacper', 'Helena', 'Jakub', 'Bartek']);
+    document.getElementById("surnameInput").value = randomText(['Brot', 'Tracz', 'Bąk', 'Grzelak', 'Nowak']);
+    document.getElementById("emailInput").value = Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5) + randomText(['@gmail.com', '@hotmail.com', '@wp.pl']);
+    document.getElementById("addressInput").value = randomText(['ul. Piotrkowska', 'ul. Dobra', 'ul. Rokocinska', 'ul. Warszawska']);
+    document.getElementById("cityInput").value = randomText(['Łódź', 'Warszawa', 'Gdynia', 'Poznań']);
+    document.getElementById("postalInput").value = (Math.floor(Math.random() * 89 + 10) + '-' + Math.floor(Math.random() * 899 + 100)).toString(); 
+    document.getElementById("companyInput").value = randomText(['Erikpol', 'Firmoplex', 'Pazurex', 'Polbruk', 'Kodpol']);
+    document.getElementById("phoneInput").value = Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString(); 
+    document.getElementById("nipInput").value = Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString();
+    document.getElementById("idCardInput").value = upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + Math.floor(Math.random() * 899999 + 100000).toString();
+  }
 
   request.onupgradeneeded = function(event) {  
     var db = event.target.result;
@@ -184,6 +201,8 @@
     };
   }
 
+
+
 </script>
 </head>
 
@@ -214,7 +233,8 @@
           <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
           <label for="companyName">Nazwa Firmy</label>
           <input id="companyInput" placeholder="firmopol" required="true"><br><br>
-          <button type="submit" id="addButton">Dodaj</button>
+          <button type="submit" id="addButton" style="width:25%">Dodaj</button>
+          <button id="generateButton" style="width:25%">Generuj</button>
 
         </fieldset>
       </form>
