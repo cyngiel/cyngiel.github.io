@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <head>
+  <title>form</title>
   <style>
     input:invalid {
       border-color: rgb(197, 3, 3);
@@ -14,7 +15,7 @@
   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
   if (!window.indexedDB) {
-    window.alert("Your browser doesn't support the IndexedDB.");
+    window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
   }
 
   function init(){
@@ -30,30 +31,6 @@
       updatetable();
   };
 
-  DB.deleteDatabase = function(name, done) {
-            var delReq = indexedDB.deleteDatabase(name);
-            delReq.onsuccess = function(e) {
-                done();
-            };
-            delReq.onerror = function(e) {
-                console.log('delete error');
-            };
-            delReq.onblocked = function(e) {
-                console.log('delete blocked');
-            };
-        };
-
-    document.getElementById('deleteButton').onclick = function(e) {
-            e.preventDefault();
-
-            console.log('deleting');
-
-            DB.deleteDatabase("ClientDatabase", function() {
-                console.log('deleted');
-            });
-            location.reload();
-        };
-        
   request.onupgradeneeded = function(event) {  
     var db = event.target.result;
     var objectStore = db.createObjectStore("clients", {keyPath: "id", autoIncrement: true});
@@ -63,6 +40,8 @@
     objectStore.createIndex("address", "address", {unique: false});
     objectStore.createIndex("city", "city", {unique: false});
     objectStore.createIndex("postal", "postal", {unique: false});
+    objectStore.createIndex("nip", "nip", {unique: false});
+    objectStore.createIndex("company", "company", {unique: false});
     objectStore.createIndex("id_card", "id_card", {unique: false});
     objectStore.createIndex("phone", "phone", {unique: false});
     objectStore.transaction.oncomplete = function(event) {
@@ -77,6 +56,8 @@
     var baddress = document.getElementById('addressInput').value;
     var bcity = document.getElementById('cityInput').value;
     var bpostal = document.getElementById('postalInput').value;
+    var bnip = document.getElementById('nipInput').value;
+    var bcompany = document.getElementById('companyInput').value;
     var bid_card = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
 
@@ -92,6 +73,8 @@
       address: baddress, 
       city: bcity, 
       postal: bpostal,
+      nip: bnip,
+      company: bcompany,
       id_card: bid_card,
       phone: bphone
     }
@@ -136,6 +119,8 @@
           cursor.value.address.toLowerCase().includes(filter) || 
           cursor.value.city.toLowerCase().includes(filter) || 
           cursor.value.postal.toLowerCase().includes(filter) || 
+          cursor.value.nip.toLowerCase().includes(filter) || 
+          cursor.value.company.toLowerCase().includes(filter) || 
           cursor.value.id_card.toLowerCase().includes(filter) || 
           cursor.value.phone.toLowerCase().includes(filter)
         )) {
@@ -146,16 +131,19 @@
               + "</td><td>" + cursor.value.address
               + "</td><td>" + cursor.value.city 
               + "</td><td>" + cursor.value.postal
+              + "</td><td>" + cursor.value.nip
+              + "</td><td>" + cursor.value.company 
               + "</td><td>" + cursor.value.id_card
               + "</td><td>" + cursor.value.phone
-              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">X</button>"
               + "</td></tr>";
-        }
-        document.getElementById('delButton').onclick = function(e){
-          var id_del = parseInt(document.getElementById('delButton').value);
-          var request = db.transaction(["clients"], "readwrite").objectStore("clients").delete(id_del);
-          updatetable();
-        }
+              document.getElementById('delButton').onclick = function(e){
+                var id_del = parseInt(document.getElementById('delButton').value);
+                var request = db.transaction(["clients"], "readwrite").objectStore("clients").delete(id_del);
+                document.getElementById('filterInput').value = "";
+                updatetable();
+              }
+          }
         cursor.continue();
       }
     };
@@ -178,31 +166,35 @@
             + "</td><td>" + cursor.value.address
             + "</td><td>" + cursor.value.city 
             + "</td><td>" + cursor.value.postal
+            + "</td><td>" + cursor.value.nip
+            + "</td><td>" + cursor.value.company 
             + "</td><td>" + cursor.value.id_card
             + "</td><td>" + cursor.value.phone
-            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">X</button>"
             + "</td></tr>";
-
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
               var request = db.transaction(["clients"], "readwrite").objectStore("clients").delete(id_del);
+              document.getElementById('filterInput').value = "";
               updatetable();
-            }
+           }
           }
           cursor.continue();
       }
     };
-
   }
 
 </script>
 </head>
 
 <body onload="init()">
+  
+    <h1>Clients Database</h1>
+
     <p>
       <form id="addClientForm">
         <fieldset id="addForm">
-          <legend>Nacisnij Enter aby zatwierdzic</legend>
+          <legend>Dodawanie</legend>
 
           <label>Imie</label>
           <input id="nameInput" placeholder="Imie" required="true">
@@ -219,35 +211,44 @@
           <label for="postalCode">Kod pocztowy</label>
           <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
           <label for="idCard">nr. dowodu</label>
-          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z]{3}[0-9]{6}"  maxlength="9" required="true">
-          
-      </fieldset>
-        <p>
-            <label>Keyword</label>
-            <input id="filterInput">
-            <button id="filterButton">Szukaj</button> 
-        </p>
+          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
+          <label for="nipNumber">NIP</label>
+          <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
+          <label for="companyName">Nazwa Firmy</label>
+          <input id="companyInput" placeholder="firmopol" required="true"><br><br>
+          <button type="submit" id="addButton">Dodaj</button>
 
+        </fieldset>
+      </form>
+    </p>
+
+    <p>
+      <fieldset id="searchForm">
+        <legend>Wyszukiwanie</legend>
+        <input id="filterInput">
+        <button id="filterButton">Szukaj</button>
+      </fieldset>
     </p>
 
     <table id="clients-table">
         <thead>
           <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Surname</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>City</th>
-              <th>Zip Code</th>
-              <th>ID Card</th>
-              <th>Phone number</th>
-            </tr>
+            <th>ID</th>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Email</th>
+            <th>Adres</th>
+            <th>Miasto</th>
+            <th>Kod pocztowy</th>
+            <th>NIP</th>
+            <th>Firma</th>
+            <th>nr. dowodu</th>
+            <th>tel.</th>
+          </tr>
         </thead>
         <tbody id="clients-table-body">
         </tbody>
     </table>
-    <br>
-    <button id="deleteButton">Usun baze</button>
+
 </body>
 </html>
