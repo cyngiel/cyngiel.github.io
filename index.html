@@ -48,6 +48,20 @@
     document.getElementById("idCardInput").value = upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + Math.floor(Math.random() * 899999 + 100000).toString();
   }
 
+  document.getElementById('deleteBaseButton').onclick = function(e){
+    var req = indexedDB.deleteDatabase('ClientDatabase');
+req.onsuccess = function () {
+    console.log("Deleted database successfully");
+};
+req.onerror = function () {
+    console.log("Couldn't delete database");
+};
+req.onblocked = function () {
+    console.log("Couldn't delete database due to the operation being blocked");
+};
+window.location.reload();
+  }
+
   request.onupgradeneeded = function(event) {  
     var db = event.target.result;
     var objectStore = db.createObjectStore("clients", {keyPath: "id", autoIncrement: true});
@@ -67,6 +81,8 @@
   };
 
   document.getElementById('addClientForm').onsubmit = function(e) {
+    e.preventDefault();
+
     var bname = document.getElementById('nameInput').value;
     var bsurname = document.getElementById('surnameInput').value;
     var bemail = document.getElementById('emailInput').value;
@@ -152,7 +168,7 @@
               + "</td><td>" + cursor.value.company 
               + "</td><td>" + cursor.value.id_card
               + "</td><td>" + cursor.value.phone
-              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">X</button>"
+              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
               + "</td></tr>";
               document.getElementById('delButton').onclick = function(e){
                 var id_del = parseInt(document.getElementById('delButton').value);
@@ -187,7 +203,7 @@
             + "</td><td>" + cursor.value.company 
             + "</td><td>" + cursor.value.id_card
             + "</td><td>" + cursor.value.phone
-            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">X</button>"
+            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
@@ -233,13 +249,14 @@
           <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
           <label for="companyName">Nazwa Firmy</label>
           <input id="companyInput" placeholder="firmopol" required="true"><br><br>
-          <button type="submit" id="addButton" style="width:25%">Dodaj</button>
           <button id="generateButton" style="width:25%">Generuj</button>
+          <button type="submit" id="addButton" style="width:25%">Dodaj</button>
+          
 
         </fieldset>
       </form>
     </p>
-
+    
     <p>
       <fieldset id="searchForm">
         <legend>Wyszukiwanie</legend>
@@ -267,6 +284,6 @@
         <tbody id="clients-table-body">
         </tbody>
     </table>
-
+    <button id="deleteBaseButton">usun baze</button>
 </body>
 </html>
