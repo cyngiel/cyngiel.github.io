@@ -215,9 +215,55 @@ window.location.reload();
           cursor.continue();
       }
     };
+
+
+
+    function getDbObjects(filter = (object) => true) {
+    let ret = new Promise((res, rej) => {
+        let objects = [];
+        if (database) {
+            var store = database.transaction(OBJECTSTORE_NAME, 'readonly').objectStore(OBJECTSTORE_NAME);
+            store.openCursor().onsuccess = (e) => {
+                var c = e.target.result;
+                if (c) {
+                    if (filter(c.value)) {
+                        objects.push(c.value);
+                    }
+                    c.continue();
+                } else {
+                    res(objects);
+                }
+            };
+        }
+    });
+    return ret;
+}
+window.onload = () => {
+    worker = new Worker('worker.js');
+    const triggerWorkerButton = document.getElementById('TriggerWorker');
+    triggerWorkerButton.addEventListener('click', (e) => {
+        getDbObjects().then((value) => {
+            worker.postMessage(JSON.stringify(value))
+        });
+    });
   }
 
+  window.addEventListener('DOMContentLoaded', (event) => {
+  var worker = new Worker('webworker.js');
+  worker.onmessage = function(e) {
+    setFormToContact(e.data);
+  }
 
+  var worker_button = document.getElementById('TriggerWorker');
+
+  worker_button.addEventListener('click', function(e) {
+    console.log('Message sent to worker');
+    worker.postMessage(getContactFromForm());
+  });
+});
+
+
+}
 
 </script>
 </head>
@@ -285,5 +331,6 @@ window.location.reload();
         </tbody>
     </table>
     <button id="deleteBaseButton">usun baze</button>
+    <button class="gen-button" id="TriggerWorker">Uruchom webworkera</button>
 </body>
 </html>
