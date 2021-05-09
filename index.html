@@ -245,7 +245,7 @@ window.location.reload();
 
   document.getElementById('TriggerWorker').onclick = function(event) {
     console.log("clicked!");
-    const worker = new Worker('worker.js');
+    const worker = new Worker('webworker.js');
 
     var bname = document.getElementById('nameInput').value;
     var bsurname = document.getElementById('surnameInput').value;
