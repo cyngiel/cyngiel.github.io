@@ -82,7 +82,7 @@ window.location.reload();
 
   document.getElementById('addClientForm').onsubmit = function(e) {
     e.preventDefault();
-
+    var bid = document.getElementById('idInput').value;
     var bname = document.getElementById('nameInput').value;
     var bsurname = document.getElementById('surnameInput').value;
     var bemail = document.getElementById('emailInput').value;
@@ -99,31 +99,71 @@ window.location.reload();
       return;
     }
 
-    const book_item = {
-      name: bname,
-      surname: bsurname,
-      email: bemail,
-      address: baddress, 
-      city: bcity, 
-      postal: bpostal,
-      nip: bnip,
-      company: bcompany,
-      id_card: bid_card,
-      phone: bphone
+    if (bid != "") {
+      bid = parseInt(bid);
+      var transaction = db.transaction(["clients"], "readwrite");
+      transaction.objectStore("clients").get(bid).onsuccess = function(event) {
+        var cursor = event.target.result;
+        if (cursor) {
+          const book_item = {
+            id: bid,
+            name: bname,
+            surname: bsurname,
+            email: bemail,
+            address: baddress, 
+            city: bcity, 
+            postal: bpostal,
+            nip: bnip,
+            company: bcompany,
+            id_card: bid_card,
+            phone: bphone
+          }
+          var id_del = bid;
+          var transaction = db.transaction(["clients"], "readwrite");
+          var request = transaction.objectStore("clients").delete(id_del);
+          var transaction = db.transaction(["clients"], "readwrite");
+          transaction.oncomplete = function(event) {
+            console.log("all done with transaction");
+          };
+          transaction.onerror = function(event){
+            console.dir(event);
+          };
+          var clientsObjectStore = transaction.objectStore("clients");
+          var request = clientsObjectStore.add(book_item);
+          request.onsuccess = function(event){
+            console.log("added item");
+            updatetable();
+          };
+        } else {
+          window.alert("Brak elementu o takim ID");
+        }
+      };
+    } else {
+      const book_item = {
+        name: bname,
+        surname: bsurname,
+        email: bemail,
+        address: baddress, 
+        city: bcity, 
+        postal: bpostal,
+        nip: bnip,
+        company: bcompany,
+        id_card: bid_card,
+        phone: bphone
+      }
+      var transaction = db.transaction(["clients"], "readwrite");
+      transaction.oncomplete = function(event) {
+        console.log("all done with transaction");
+      };
+      transaction.onerror = function(event){
+        console.dir(event);
+      };
+      var clientsObjectStore = transaction.objectStore("clients");
+      var request = clientsObjectStore.add(book_item);
+      request.onsuccess = function(event){
+        console.log("added item");
+      };
     }
-    var transaction = db.transaction(["clients"], "readwrite");
-    transaction.oncomplete = function(event) {
-      console.log("all done with transaction");
-    };
-    transaction.onerror = function(event){
-      console.dir(event);
-    };
-    var clientsObjectStore = transaction.objectStore("clients");
-    var request = clientsObjectStore.add(book_item);
-    request.onsuccess = function(event){
-      console.log("added item");
-    };
-
     updatetable();
 
   }
@@ -182,6 +222,70 @@ window.location.reload();
     };
   }
 
+  function getDbObjects(filter = (object) => true) {
+    let ret = new Promise((res, rej) => {
+      let objects = [];
+      if (db) {
+        var store = db.transaction(['clients'], 'readonly').objectStore('clients');
+        store.openCursor().onsuccess = (e) => {
+          var c = e.target.result;
+          if (c) {
+            if (filter(c.value)) {
+              objects.push(c.value);
+            }
+            c.continue();
+          } else {
+            res(objects);
+          }
+        };
+      }
+    });
+    return ret;
+  }
+
+  document.getElementById('TriggerWorker').onclick = function(event) {
+    const worker = new Worker('webworker.js');
+
+    var bname = document.getElementById('nameInput').value;
+    var bsurname = document.getElementById('surnameInput').value;
+    var bemail = document.getElementById('emailInput').value;
+    var baddress = document.getElementById('addressInput').value;
+    var bcity = document.getElementById('cityInput').value;
+    var bpostal = document.getElementById('postalInput').value;
+    var bnip = document.getElementById('nipInput').value;
+    var bcompany = document.getElementById('companyInput').value;
+    var bid_card = document.getElementById('idCardInput').value;
+    var bphone = document.getElementById('phoneInput').value;
+    const item = {
+      name: bname,
+      surname: bsurname,
+      email: bemail,
+      address: baddress, 
+      city: bcity, 
+      postal: bpostal,
+      nip: bnip,
+      company: bcompany,
+      id_card: bid_card,
+      phone: bphone
+    }
+    worker.postMessage(JSON.stringify(item));
+    worker.addEventListener('message', handleMessageFromWorker);
+  }
+
+  function handleMessageFromWorker(e) {
+    result = JSON.parse(e.data);
+    document.getElementById("nameInput").value = result['name'];
+    document.getElementById("surnameInput").value = result['surname'];
+    document.getElementById("emailInput").value = result['email'];
+    document.getElementById("addressInput").value = result['address'];
+    document.getElementById("cityInput").value = result['city'];
+    document.getElementById("postalInput").value = result['postal'];
+    document.getElementById("companyInput").value = result['company'];
+    document.getElementById("phoneInput").value = result['phone'];
+    document.getElementById("nipInput").value = result['nip'];
+    document.getElementById("idCardInput").value = result['id_card'];
+  }
+
   function updatetable(){
     document.getElementById("clients-table-body").innerHTML = "";
     var request = db.transaction("clients").objectStore("clients").openCursor();
@@ -215,55 +319,9 @@ window.location.reload();
           cursor.continue();
       }
     };
-
-
-
-    function getDbObjects(filter = (object) => true) {
-    let ret = new Promise((res, rej) => {
-        let objects = [];
-        if (database) {
-            var store = database.transaction(OBJECTSTORE_NAME, 'readonly').objectStore(OBJECTSTORE_NAME);
-            store.openCursor().onsuccess = (e) => {
-                var c = e.target.result;
-                if (c) {
-                    if (filter(c.value)) {
-                        objects.push(c.value);
-                    }
-                    c.continue();
-                } else {
-                    res(objects);
-                }
-            };
-        }
-    });
-    return ret;
-}
-window.onload = () => {
-    worker = new Worker('worker.js');
-    const triggerWorkerButton = document.getElementById('TriggerWorker');
-    triggerWorkerButton.addEventListener('click', (e) => {
-        getDbObjects().then((value) => {
-            worker.postMessage(JSON.stringify(value))
-        });
-    });
   }
 
-  window.addEventListener('DOMContentLoaded', (event) => {
-  var worker = new Worker('webworker.js');
-  worker.onmessage = function(e) {
-    setFormToContact(e.data);
-  }
 
-  var worker_button = document.getElementById('worker_button');
-
-  worker_button.addEventListener('click', function(e) {
-    console.log('Message sent to worker');
-    worker.postMessage(getContactFromForm());
-  });
-});
-
-
-}
 
 </script>
 </head>
@@ -274,6 +332,9 @@ window.onload = () => {
       <form id="addClientForm">
         <fieldset id="addForm">
           <legend>Dodawanie</legend>
+
+          <label>Podaj ID elementu, który chcesz edytować</label>
+          <input id="idInput"><br><br>
 
           <label>Imie</label>
           <input id="nameInput" placeholder="Imie" required="true">
@@ -290,7 +351,7 @@ window.onload = () => {
           <label for="postalCode">Kod pocztowy</label>
           <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
           <label for="idCard">nr. dowodu</label>
-          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
+          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
           <label for="nipNumber">NIP</label>
           <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
           <label for="companyName">Nazwa Firmy</label>
@@ -302,6 +363,7 @@ window.onload = () => {
         </fieldset>
       </form>
     </p>
+    <button id="TriggerWorker">Webworker</button>
     
     <p>
       <fieldset id="searchForm">
@@ -331,6 +393,6 @@ window.onload = () => {
         </tbody>
     </table>
     <button id="deleteBaseButton">usun baze</button>
-    <button class="gen-button" id="worker_button">Uruchom webworkera</button>
+    
 </body>
 </html>
