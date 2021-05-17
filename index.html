@@ -2,7 +2,26 @@
 <head>
   <link rel="stylesheet" href="styles.css">
   <style>
+#image-div {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    background-color: black;
+    background-position: center;
+    background-size: cover;
+    --filter: #FFFFFF;
+}
 
+#image-div::after {
+    background-color: var(--filter);
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 50%;
+}
     input:invalid {
       border-color: rgb(197, 3, 3);
     }
