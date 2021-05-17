@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <head>
-  <link rel="stylesheet" href="styles.css">
   <style>
 #image-div {
     width: 400px;
@@ -221,15 +220,7 @@ window.location.reload();
         )) {
           document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
             "</td><td>" + cursor.value.name 
-              + "</td><td>" + cursor.value.surname
-              + "</td><td>" + cursor.value.email
-              + "</td><td>" + cursor.value.address
-              + "</td><td>" + cursor.value.city 
-              + "</td><td>" + cursor.value.postal
-              + "</td><td>" + cursor.value.nip
-              + "</td><td>" + cursor.value.company 
-              + "</td><td>" + cursor.value.id_card
-              + "</td><td>" + cursor.value.phone
+              + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
               + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
               + "</td></tr>";
               document.getElementById('delButton').onclick = function(e){
@@ -243,6 +234,18 @@ window.location.reload();
       }
     };
   }
+
+  document.getElementById('webworkerButton2').onclick = function(event) {
+
+if (document.getElementById("imageInput").value.length < 1) {
+  window.alert("Brak obrazu");
+  return;
+}
+const item = getFormContent();
+const worker = new Worker('webworker2.js');
+worker.postMessage(JSON.stringify(item));
+worker.addEventListener('message', handleMessageFromFilterWorker);
+}
 
   function getDbObjects(filter = (object) => true) {
     let ret = new Promise((res, rej) => {
@@ -277,6 +280,7 @@ window.location.reload();
     var bid_card = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
     var bimage = document.getElementById('imageInput').value;
+
     const item = {
       name: bname,
       surname: bsurname,
@@ -293,20 +297,9 @@ window.location.reload();
     return item;
   }
 
-  document.getElementById('TriggerFilter').onclick = function(event) {
 
-if (document.getElementById("imageInput").value.length < 1) {
-  window.alert("Brak obrazu");
-  return;
-}
-const item = getFormContent();
-const worker = new Worker('webworker2.js');
-worker.postMessage(JSON.stringify(item));
-worker.addEventListener('message', handleMessageFromFilterWorker);
-}
-
-
-document.getElementById('TriggerWorker').onclick = function(event) {
+  
+document.getElementById('webworkerButton').onclick = function(event) {
 const worker = new Worker('webworker.js');
 
 const item = getFormContent();
@@ -348,15 +341,7 @@ worker.addEventListener('message', handleMessageFromWorker);
       if (cursor) {
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
-            + "</td><td>" + cursor.value.surname
-            + "</td><td>" + cursor.value.email
-            + "</td><td>" + cursor.value.address
-            + "</td><td>" + cursor.value.city 
-            + "</td><td>" + cursor.value.postal
-            + "</td><td>" + cursor.value.nip
-            + "</td><td>" + cursor.value.company 
-            + "</td><td>" + cursor.value.id_card
-            + "</td><td>" + cursor.value.phone
+            + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city  + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company  + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
             + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
@@ -377,6 +362,8 @@ worker.addEventListener('message', handleMessageFromWorker);
 </head>
 
 <body onload="init()">
+
+  <div id="image-div"></div><button id="webworkerButton2">Webworker- dodaj filtr</button>
 
     <p>
       <form id="addClientForm">
@@ -415,10 +402,7 @@ worker.addEventListener('message', handleMessageFromWorker);
         </fieldset>
       </form>
     </p>
-    <button id="TriggerWorker">Webworker- zmien text</button><br><br>
-
-    <div id="image-div"></div><button id="TriggerFilter">Webworker- dodaj filtr</button>
-    
+    <button id="webworkerButton">Webworker- zmien text</button><br><br>  
 
     <p>
       <fieldset id="searchForm">

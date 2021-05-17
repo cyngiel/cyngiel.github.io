@@ -18,10 +18,12 @@ onmessage = function (e) {
     var r = suma_wszystkich_liter % 255;
     var g = 255 - (suma_wszystkich_liter % 255);
     var b = (0.5 * r > 125) ? 99 : 199; 
-    const new_data = {
+    const newRGB = {
       R: red, 
       G: green,
       B: blue,
     }
-    self.postMessage(JSON.stringify(new_data));
+
+    
+    self.postMessage(JSON.stringify(newRGB));
   };
