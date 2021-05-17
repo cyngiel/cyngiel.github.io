@@ -1,22 +1,27 @@
 onmessage = function (e) {
-    function sumLetters(str) {
+    var data = JSON.parse(e.data);
+    var suma_wszystkich_liter = 0;
+    
+    function getCount(str) {
       var sum = 0;
-      for (var i = 0; i < str.length; ++i) {
+      var i = 0;
+      for (i = 0; i < str.length; ++i) {
         sum += str.charCodeAt(i);
       }
       return sum;
     }
     
-    var data = JSON.parse(e.data);
-    var sum = 0;
+    
     Object.keys(data).forEach(function (key) { 
-      sum += sumLetters(data[key]);
+      suma_wszystkich_liter += getCount(data[key]);
     })
-    var r = sum % 255;
+    var r = suma_wszystkich_liter % 255;
+    var g = 255 - (suma_wszystkich_liter % 255);
+    var b = (0.5 * r > 125) ? 99 : 199; 
     const new_data = {
-      R: r, 
-      G: 255 - (sum % 255),
-      B: (0.5 * r > 125) ? 99 : 199
+      R: red, 
+      G: green,
+      B: blue,
     }
     self.postMessage(JSON.stringify(new_data));
   };
