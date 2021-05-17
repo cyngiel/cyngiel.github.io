@@ -1,3 +1,4 @@
+
 onmessage = function (e) {
     var data = JSON.parse(e.data);
     var suma_wszystkich_liter = 0;
