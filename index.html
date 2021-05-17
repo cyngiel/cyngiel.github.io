@@ -275,7 +275,7 @@ window.location.reload();
   document.getElementById('TriggerFilter').onclick = function(event) {
 
 if (document.getElementById("imageInput").value.length < 1) {
-  window.alert("Image cannot be blank!");
+  window.alert("Brak obrazu");
   return;
 }
 const item = getFormContent();
@@ -286,7 +286,7 @@ worker.addEventListener('message', handleMessageFromFilterWorker);
 
 
 document.getElementById('TriggerWorker').onclick = function(event) {
-const worker = new Worker('worker.js');
+const worker = new Worker('webworker.js');
 
 const item = getFormContent();
 worker.postMessage(JSON.stringify(item));
@@ -425,9 +425,6 @@ worker.addEventListener('message', handleMessageFromWorker);
         </tbody>
     </table>
     <button id="deleteBaseButton">usun baze</button>
-
-    <div id="image-div">
-    </div>
     
 </body>
 </html>
