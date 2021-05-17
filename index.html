@@ -409,8 +409,8 @@ worker.addEventListener('message', handleMessageFromWorker);
           <label for="image">JPG url</label>
           <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url">Generowane z https://placem.at<br><br>
           <button id="generateButton" style="width:25%">Generuj</button>
+          <button id="TriggerWorker">Webworker</button><br>
           <button type="submit" id="addButton" style="width:25%">Dodaj</button>
-          <button id="TriggerFilter" style="width:25%">Dodaj filtr</button>
           
 
         </fieldset>
@@ -418,7 +418,7 @@ worker.addEventListener('message', handleMessageFromWorker);
     </p>
     <button id="TriggerWorker">Webworker</button><br><br>
 
-    <div id="image-div"></div>
+    <div id="image-div"></div><button id="TriggerFilter">Dodaj filtr></button>
     
 
     <p>
