@@ -16,13 +16,13 @@ onmessage = function (e) {
     Object.keys(data).forEach(function (key) { 
       suma_wszystkich_liter += getCount(data[key]);
     })
-    var red = suma_wszystkich_liter % 255;
-    var green = 255 - (suma_wszystkich_liter % 255);
-    var blue = (0.5 * red > 125) ? 99 : 199; 
+    var red_value = suma_wszystkich_liter % 255;
+    var green_value = 255 - (suma_wszystkich_liter % 255);
+    var blue_value = (0.5 * red_value > 125) ? 99 : 199; 
     const newRGB = {
-      R: red, 
-      G: green,
-      B: blue,
+      R: red_value, 
+      G: green_value,
+      B: blue_value,
     }
 
 
