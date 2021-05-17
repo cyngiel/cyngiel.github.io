@@ -279,7 +279,6 @@ worker.addEventListener('message', handleMessageFromFilterWorker);
     var bcompany = document.getElementById('companyInput').value;
     var bid_card = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
-    var bimage = document.getElementById('imageInput').value;
 
     const item = {
       name: bname,
@@ -319,7 +318,6 @@ worker.addEventListener('message', handleMessageFromWorker);
     document.getElementById("phoneInput").value = result['phone'];
     document.getElementById("nipInput").value = result['nip'];
     document.getElementById("idCardInput").value = result['id_card'];
-    document.getElementById("imageInput").value = result['image'];
   }
 
   function handleMessageFromFilterWorker(e) {
