@@ -46,6 +46,7 @@
     document.getElementById("phoneInput").value = Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString(); 
     document.getElementById("nipInput").value = Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString();
     document.getElementById("idCardInput").value = upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + Math.floor(Math.random() * 899999 + 100000).toString();
+    document.getElementById("imageInput").value = `https://placem.at/${randomText(['places', 'people', 'things'])}?h=400&w=400`;
   }
 
   document.getElementById('deleteBaseButton').onclick = function(e){
@@ -243,9 +244,7 @@ window.location.reload();
     return ret;
   }
 
-  document.getElementById('TriggerWorker').onclick = function(event) {
-    const worker = new Worker('webworker.js');
-
+  function getFormContent() {
     var bname = document.getElementById('nameInput').value;
     var bsurname = document.getElementById('surnameInput').value;
     var bemail = document.getElementById('emailInput').value;
@@ -256,6 +255,7 @@ window.location.reload();
     var bcompany = document.getElementById('companyInput').value;
     var bid_card = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
+    var bimage = document.getElementById('imageInput').value;
     const item = {
       name: bname,
       surname: bsurname,
@@ -266,11 +266,32 @@ window.location.reload();
       nip: bnip,
       company: bcompany,
       id_card: bid_card,
-      phone: bphone
+      phone: bphone,
+      image: bimage
     }
-    worker.postMessage(JSON.stringify(item));
-    worker.addEventListener('message', handleMessageFromWorker);
+    return item;
   }
+
+  document.getElementById('TriggerFilter').onclick = function(event) {
+
+if (document.getElementById("imageInput").value.length < 1) {
+  window.alert("Image cannot be blank!");
+  return;
+}
+const item = getFormContent();
+const worker = new Worker('webworker2.js');
+worker.postMessage(JSON.stringify(item));
+worker.addEventListener('message', handleMessageFromFilterWorker);
+}
+
+
+document.getElementById('TriggerWorker').onclick = function(event) {
+const worker = new Worker('worker.js');
+
+const item = getFormContent();
+worker.postMessage(JSON.stringify(item));
+worker.addEventListener('message', handleMessageFromWorker);
+}
 
   function handleMessageFromWorker(e) {
     result = JSON.parse(e.data);
@@ -284,6 +305,14 @@ window.location.reload();
     document.getElementById("phoneInput").value = result['phone'];
     document.getElementById("nipInput").value = result['nip'];
     document.getElementById("idCardInput").value = result['id_card'];
+    document.getElementById("imageInput").value = result['image'];
+  }
+
+  function handleMessageFromFilterWorker(e) {
+    var result = JSON.parse(e.data);
+    var image = document.getElementById('imageInput').value;
+    document.getElementById('image-div').style.setProperty('--filter', `rgb(${result.R}, ${result.G}, ${result.B})`);
+    document.getElementById('image-div').style.backgroundImage = `url('${image}')`;
   }
 
   function updatetable(){
@@ -356,6 +385,8 @@ window.location.reload();
           <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
           <label for="companyName">Nazwa Firmy</label>
           <input id="companyInput" placeholder="firmopol" required="true"><br><br>
+          <label for="image">Image URL (JPG format)</label>
+          <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url"><br><br>
           <button id="generateButton" style="width:25%">Generuj</button>
           <button type="submit" id="addButton" style="width:25%">Dodaj</button>
           
@@ -364,6 +395,7 @@ window.location.reload();
       </form>
     </p>
     <button id="TriggerWorker">Webworker</button>
+    <button id="TriggerFilter">Webworker obraz</button>
     
     <p>
       <fieldset id="searchForm">
@@ -393,6 +425,9 @@ window.location.reload();
         </tbody>
     </table>
     <button id="deleteBaseButton">usun baze</button>
+
+    <div id="image-div">
+    </div>
     
 </body>
 </html>
