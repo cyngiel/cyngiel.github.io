@@ -67,7 +67,7 @@
     document.getElementById("phoneInput").value = Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString(); 
     document.getElementById("nipInput").value = Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString();
     document.getElementById("idCardInput").value = upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + Math.floor(Math.random() * 899999 + 100000).toString();
-    document.getElementById("imageInput").value = `https://placem.at/${randomText(['places', 'people', 'things'])}?h=400&w=400`;
+    document.getElementById("imageInput").value = `https://placem.at/${randomText(['places', 'people', 'things'])}?`;
   }
 
   document.getElementById('deleteBaseButton').onclick = function(e){
