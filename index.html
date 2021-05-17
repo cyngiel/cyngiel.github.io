@@ -1,26 +1,8 @@
 <!DOCTYPE html>
 <head>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    #image-div {
-    width: 400px;
-    height: 400px;
-    position: relative;
-    background-image: url("https://placem.at/things?h=400&w=400&txt=placeholder");
-    background-position: center;
-    background-size: cover;
-    --filter: #FFFFFF;
-}
 
-#image-div::after {
-    background-color: var(--filter);
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 50%;
-}
     input:invalid {
       border-color: rgb(197, 3, 3);
     }
@@ -34,7 +16,7 @@
   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
   if (!window.indexedDB) {
-    window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
+    window.alert("Brak wsparcia dla IndexDB");
   }
 
   function init(){
@@ -116,7 +98,7 @@ window.location.reload();
     var bphone = document.getElementById('phoneInput').value;
 
     if (!bname || !bsurname || !bemail || !baddress || !bcity || !bpostal || !bphone) {
-      window.alert("Fill the form correctly!");
+      window.alert("Uzupelnij formularz");
       return;
     }
 
@@ -417,6 +399,9 @@ worker.addEventListener('message', handleMessageFromWorker);
     <button id="TriggerWorker">Webworker</button>
     <button id="TriggerFilter">Webworker obraz</button>
     
+    <div id="image-div">
+    </div>
+
     <p>
       <fieldset id="searchForm">
         <legend>Wyszukiwanie</legend>
