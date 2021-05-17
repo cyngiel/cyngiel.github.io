@@ -2,8 +2,8 @@
 <head>
   <style>
 #image-div {
-    width: 400px;
-    height: 400px;
+    width: 300px;
+    height: 300px;
     position: relative;
     background-color: black;
     background-position: center;
@@ -363,46 +363,57 @@ worker.addEventListener('message', handleMessageFromWorker);
 
 <body onload="init()">
 
-  <div id="image-div"></div><button id="webworkerButton2">Webworker- dodaj filtr</button>
+<table>
+  <tr>
+    <th>
+      <div id="image-div"></div><button id="webworkerButton2">Webworker- dodaj filtr</button>
+    </th>
+    <th style="text-align:left">
+      <p>
+        <form id="addClientForm">
+          <fieldset id="addForm">
+            <legend>Dodawanie</legend>
+  
+            <label>Podaj ID elementu, który chcesz edytować</label>
+            <input id="idInput"><br><br>
+  
+            <label>Imie</label>
+            <input id="nameInput" placeholder="Imie" required="true">
+            <label>Nazwisko</label>
+            <input id="surnameInput" placeholder="Nazwisko" required="true">
+            <label for="email">Email</label>
+            <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
+            <label for="phoneNumber">Tel.</label>
+            <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true"><br>
+            <label for="address">Adres</label>
+            <input type="text" id="addressInput" placeholder="ulica + numer" required="true">
+            <label for="cityInput">Miasto</label>
+            <input id="cityInput" placeholder="Miasto" required="true">         
+            <label for="postalCode">Kod pocztowy</label>
+            <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
+            <label for="idCard">nr. dowodu</label>
+            <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
+            <label for="nipNumber">NIP</label>
+            <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
+            <label for="companyName">Nazwa Firmy</label>
+            <input id="companyInput" placeholder="firmopol" required="true"><br><br>
+            <label for="image">JPG url</label>
+            <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url">Generowane z https://placem.at<br><br>
+            <button id="generateButton" style="width:25%">Generuj</button>
+            <button type="submit" id="addButton" style="width:25%">Dodaj</button>
+            
+  
+          </fieldset>
+        </form>
+      </p>
+      <button id="webworkerButton">Webworker- zmien text</button><br><br>  
+    </th>
+  </tr>
+</table>
 
-    <p>
-      <form id="addClientForm">
-        <fieldset id="addForm">
-          <legend>Dodawanie</legend>
+  
 
-          <label>Podaj ID elementu, który chcesz edytować</label>
-          <input id="idInput"><br><br>
-
-          <label>Imie</label>
-          <input id="nameInput" placeholder="Imie" required="true">
-          <label>Nazwisko</label>
-          <input id="surnameInput" placeholder="Nazwisko" required="true">
-          <label for="email">Email</label>
-          <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
-          <label for="phoneNumber">Tel.</label>
-          <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true"><br>
-          <label for="address">Adres</label>
-          <input type="text" id="addressInput" placeholder="ulica + numer" required="true">
-          <label for="cityInput">Miasto</label>
-          <input id="cityInput" placeholder="Miasto" required="true">         
-          <label for="postalCode">Kod pocztowy</label>
-          <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
-          <label for="idCard">nr. dowodu</label>
-          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
-          <label for="nipNumber">NIP</label>
-          <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
-          <label for="companyName">Nazwa Firmy</label>
-          <input id="companyInput" placeholder="firmopol" required="true"><br><br>
-          <label for="image">JPG url</label>
-          <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url">Generowane z https://placem.at<br><br>
-          <button id="generateButton" style="width:25%">Generuj</button>
-          <button type="submit" id="addButton" style="width:25%">Dodaj</button>
-          
-
-        </fieldset>
-      </form>
-    </p>
-    <button id="webworkerButton">Webworker- zmien text</button><br><br>  
+    
 
     <p>
       <fieldset id="searchForm">
