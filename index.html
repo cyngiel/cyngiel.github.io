@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <head>
   <style>
+    body{
+    color:#000000;
+    margin-left:0;
+    margin-right:0;
+    margin-top:0;
+    margin-bottom:0;
+    margin-width:0;
+    margin-height:0;
+    padding: 5px;
+}
+
 #image-div {
-    width: 300px;
-    height: 300px;
+    width: 100px;
+    height: 100px;
     position: relative;
     background-color: black;
     background-position: center;
     background-size: cover;
+    margin-left: auto;
+  margin-right: auto;
     --filter: #FFFFFF;
 }
 
@@ -21,12 +34,118 @@
     height: 100%;
     opacity: 50%;
 }
-    input:invalid {
-      border-color: rgb(197, 3, 3);
-    }
-    input:valid {
-      border-color: rgb(36, 175, 36);
-    }
+input:invalid {
+  border-color: rgb(197, 3, 3);
+}
+input:valid {
+  border-color: rgb(36, 175, 36);
+}
+
+canvas {
+width: 100px;
+height: 100px;
+}
+
+.styled-table {
+    border-collapse: collapse;
+
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width:100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.styled-main-table {
+    margin-top: -20px;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width:100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-main-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-main-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-main-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-main-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.styled-main-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+body:before{
+  content:'';
+  height:100%;
+  display:inline-block;
+  vertical-align:middle;
+}
+button{
+  background:#1AAB8A;
+  color:#fff;
+  border:none;
+  position:relative;
+  height:20px;
+  font-size:1em;
+  padding:0 2em;
+  cursor:pointer;
+  transition:800ms ease all;
+  outline:none;
+}
+button:hover{
+  background:#fff;
+  color:#1AAB8A;
+}
+button:before,button:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #1AAB8A;
+  transition:400ms ease all;
+}
+button:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+button:hover:before,button:hover:after{
+  width:100%;
+  transition:800ms ease all;
+}
   </style>
 <script>
   window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
@@ -36,6 +155,25 @@
   if (!window.indexedDB) {
     window.alert("Brak wsparcia dla IndexDB");
   }
+
+  function showImagePreview(image_url, rgba='rgba(0, 0, 0, 0.5)') {
+    clearImagePreview();
+    var canvas = document.querySelector('canvas');
+    var ctx = canvas.getContext('2d');
+    image = new Image();
+    image.src = image_url;
+    image.onload = function() {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = rgba;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } 
+  }
+
+  function clearImagePreview() {
+    var canvas = document.querySelector('canvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  }
+
 
   function init(){
     var request = window.indexedDB.open("ClientDatabase", 1);
@@ -96,6 +234,7 @@ window.location.reload();
     objectStore.createIndex("company", "company", {unique: false});
     objectStore.createIndex("id_card", "id_card", {unique: false});
     objectStore.createIndex("phone", "phone", {unique: false});
+    objectStore.createIndex("image", "image", {unique: false});
     objectStore.transaction.oncomplete = function(event) {
       
     };
@@ -112,8 +251,9 @@ window.location.reload();
     var bpostal = document.getElementById('postalInput').value;
     var bnip = document.getElementById('nipInput').value;
     var bcompany = document.getElementById('companyInput').value;
-    var bid_card = document.getElementById('idCardInput').value;
+    var bcard = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
+    var bimage = document.getElementById('imageInput').value;
 
     if (!bname || !bsurname || !bemail || !baddress || !bcity || !bpostal || !bphone) {
       window.alert("Uzupelnij formularz");
@@ -136,8 +276,9 @@ window.location.reload();
             postal: bpostal,
             nip: bnip,
             company: bcompany,
-            id_card: bid_card,
-            phone: bphone
+            id_card: bcard,
+            phone: bphone,
+            image: bimage
           }
           var id_del = bid;
           var transaction = db.transaction(["clients"], "readwrite");
@@ -169,8 +310,9 @@ window.location.reload();
         postal: bpostal,
         nip: bnip,
         company: bcompany,
-        id_card: bid_card,
-        phone: bphone
+        id_card: bcard,
+        phone: bphone,
+        image: bimage
       }
       var transaction = db.transaction(["clients"], "readwrite");
       transaction.oncomplete = function(event) {
@@ -187,6 +329,49 @@ window.location.reload();
     }
     updatetable();
 
+  }
+
+  function getRecordContent(cursor) {
+    const item = {
+      name: cursor['name'],
+      surname: cursor['surname'],
+      email: cursor['email'],
+      address: cursor['address'], 
+      city: cursor['city'],
+      postal: cursor['postal'],
+      nip: cursor['nip'],
+      company: cursor['company'],
+      id_card: cursor['id_card'],
+      phone: cursor['phone'],
+      image: cursor['image']
+    }
+    console.log(item);
+    return item;
+  }
+
+  function triggerFilter(id) {
+    var request = db.transaction(["clients"], "readwrite").objectStore("clients").get(id);
+    request.onsuccess = function(event) {
+      cursor = event.target.result;
+      const item = getRecordContent(cursor);
+      const worker = new Worker('webworker2.js');
+      worker.postMessage(JSON.stringify(item));
+      worker.addEventListener('message', handleMessageFromFilterWorker);
+    }
+  }
+
+  document.getElementById('previewButton').onclick = function(e) {
+    var id = parseInt(document.getElementById('previewInput').value);
+    var request = db.transaction(["clients"], "readwrite").objectStore("clients").get(id);
+    request.onsuccess = function(event){
+      cursor = event.target.result;
+      if (!cursor || !cursor['image'] || cursor['image'].lenght < 1) {
+        window.alert("Record doesn't exist or doesn't contain any image!");
+        clearImagePreview();
+      }
+      showImagePreview(cursor['image']);
+      triggerFilter(id);
+    }
   }
 
   document.getElementById('filterButton').onclick = function(e){
@@ -235,18 +420,6 @@ window.location.reload();
     };
   }
 
-  document.getElementById('webworkerButton2').onclick = function(event) {
-
-if (document.getElementById("imageInput").value.length < 1) {
-  window.alert("Brak obrazu");
-  return;
-}
-const item = getFormContent();
-const worker = new Worker('webworker2.js');
-worker.postMessage(JSON.stringify(item));
-worker.addEventListener('message', handleMessageFromFilterWorker);
-}
-
   function getDbObjects(filter = (object) => true) {
     let ret = new Promise((res, rej) => {
       let objects = [];
@@ -277,8 +450,9 @@ worker.addEventListener('message', handleMessageFromFilterWorker);
     var bpostal = document.getElementById('postalInput').value;
     var bnip = document.getElementById('nipInput').value;
     var bcompany = document.getElementById('companyInput').value;
-    var bid_card = document.getElementById('idCardInput').value;
+    var bcard = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
+    var bimage = document.getElementById('imageInput').value;
 
     const item = {
       name: bname,
@@ -289,8 +463,9 @@ worker.addEventListener('message', handleMessageFromFilterWorker);
       postal: bpostal,
       nip: bnip,
       company: bcompany,
-      id_card: bid_card,
+      id_card: bcard,
       phone: bphone,
+      image: bimage
     }
     return item;
   }
@@ -317,6 +492,7 @@ worker.addEventListener('message', handleMessageFromWorker);
     document.getElementById("phoneInput").value = result['phone'];
     document.getElementById("nipInput").value = result['nip'];
     document.getElementById("idCardInput").value = result['id_card'];
+    document.getElementById("imageInput").value = result['image'];
   }
 
   function handleMessageFromFilterWorker(e) {
@@ -324,6 +500,7 @@ worker.addEventListener('message', handleMessageFromWorker);
     var image = document.getElementById('imageInput').value;
     document.getElementById('image-div').style.setProperty('--filter', `rgb(${result.R}, ${result.G}, ${result.B})`);
     document.getElementById('image-div').style.backgroundImage = `url('${image}')`;
+    showImagePreview(image, `rgba(${result.R}, ${result.G}, ${result.B}, 0.5)`);
   }
 
   function updatetable(){
@@ -339,7 +516,7 @@ worker.addEventListener('message', handleMessageFromWorker);
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
             + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city  + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company  + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
-            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+            + "</td><td><button style=\"background:#ff2f2f\" id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
@@ -360,10 +537,19 @@ worker.addEventListener('message', handleMessageFromWorker);
 
 <body onload="init()">
 
-<table>
+<table class="styled-main-table">
+  <thead>
+    <tr>
+        <th>Podgląd obrazu</th><th>Form</th>
+    </tr>
+    </thead>
   <tr>
     <th>
-      <div id="image-div"></div><button id="webworkerButton2">Webworker- dodaj filtr</button>
+      <p>
+          <div id="image-div"><canvas id="canvas"></canvas>
+          </div>
+
+      </p>
     </th>
     <th style="text-align:left">
       <p>
@@ -372,31 +558,60 @@ worker.addEventListener('message', handleMessageFromWorker);
             <legend>Dodawanie</legend>
   
             <label>Podaj ID elementu, który chcesz edytować</label>
-            <input id="idInput"><br><br>
+            <input id="idInput">
   
-            <label>Imie</label>
-            <input id="nameInput" placeholder="Imie" required="true">
-            <label>Nazwisko</label>
-            <input id="surnameInput" placeholder="Nazwisko" required="true">
-            <label for="email">Email</label>
-            <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
-            <label for="phoneNumber">Tel.</label>
-            <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true"><br>
-            <label for="address">Adres</label>
-            <input type="text" id="addressInput" placeholder="ulica + numer" required="true">
-            <label for="cityInput">Miasto</label>
-            <input id="cityInput" placeholder="Miasto" required="true">         
-            <label for="postalCode">Kod pocztowy</label>
-            <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
-            <label for="idCard">nr. dowodu</label>
-            <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
-            <label for="nipNumber">NIP</label>
-            <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
-            <label for="companyName">Nazwa Firmy</label>
-            <input id="companyInput" placeholder="firmopol" required="true"><br><br>
+            <table class="styled-table">
+              <tr>
+                <th>
+                  <label>Imie</label>
+                  <input id="nameInput" placeholder="Imie" required="true">
+                </th>
+                <th>
+                  <label>Nazwisko</label>
+                  <input id="surnameInput" placeholder="Nazwisko" required="true">
+                </th>
+                <th>
+                  <label for="email">Email</label>
+                  <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
+                </th>
+                <th>
+                  <label for="phoneNumber">Tel.</label>
+                  <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true">
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  <label for="cityInput">Miasto</label>
+                  <input id="cityInput" placeholder="Miasto" required="true"> 
+                </th>
+                <th>
+                  <label for="postalCode">Kod pocztowy</label>
+                  <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
+                </th>
+                <th>
+                  <label for="idCard">nr. dowodu</label>
+                  <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true">
+                </th>
+                <th></th>
+              </tr>
+              <tr>
+                <th>
+                  <label for="nipNumber">NIP</label>
+                  <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
+                </th>
+                <th>
+                  <label for="companyName">Nazwa Firmy</label>
+                  <input id="companyInput" placeholder="firmopol" required="true">
+                </th>
+                <th><label for="address">Adres</label>
+                  <input type="text" id="addressInput" placeholder="ulica + numer" required="true"></th><th></th>
+              </tr>
+            </table>
+
+            
             <label for="image">JPG url</label>
             <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url">Generowane z https://placem.at<br><br>
-            <button id="generateButton" style="width:25%">Generuj</button>
+            <button id="generateButton" style="width:25%">Dodaj losowe</button>
             <button type="submit" id="addButton" style="width:25%">Dodaj</button>
             
   
@@ -408,19 +623,31 @@ worker.addEventListener('message', handleMessageFromWorker);
   </tr>
 </table>
 
-  
-
-    
-
     <p>
       <fieldset id="searchForm">
         <legend>Wyszukiwanie</legend>
-        <input id="filterInput">
-        <button id="filterButton">Szukaj</button>
+        <table style="width:100%;">
+          <tr>
+            <th>
+              <input id="filterInput">
+              <button id="filterButton">Szukaj</button>
+            </th>
+            <th>
+              <label>podaj ID rekordu aby wyswietlic jego obraz:</label>
+              <input id="previewInput">
+              <button id="previewButton">Wyswietl</button>
+              
+            </th>
+            <th>
+              <button id="deleteBaseButton" style="background:#ff2f2f;">usun baze</button>
+            </th>
+          </tr>
+        </table>
+
       </fieldset>
     </p>
-
-    <table id="clients-table">
+    
+    <table id="clients-table" class="styled-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -434,12 +661,12 @@ worker.addEventListener('message', handleMessageFromWorker);
             <th>Firma</th>
             <th>nr. dowodu</th>
             <th>tel.</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="clients-table-body">
         </tbody>
     </table>
-    <button id="deleteBaseButton">usun baze</button>
     
 </body>
 </html>
