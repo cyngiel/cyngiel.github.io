@@ -516,7 +516,7 @@ worker.addEventListener('message', handleMessageFromWorker);
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
             + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city  + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company  + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
-            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+            + "</td><td><button style=\"background:#ff2f2f\" id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
