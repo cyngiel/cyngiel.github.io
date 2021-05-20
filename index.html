@@ -48,7 +48,7 @@ height: 100px;
 
 .styled-table {
     border-collapse: collapse;
-    margin: 25px 0;
+
     font-size: 0.9em;
     font-family: sans-serif;
     width:100%;
@@ -74,6 +74,7 @@ height: 100px;
 }
 
 .styled-main-table {
+    margin-top: -20px;
     border-collapse: collapse;
     font-size: 0.9em;
     font-family: sans-serif;
@@ -101,6 +102,49 @@ height: 100px;
 
 .styled-main-table tbody tr {
     border-bottom: 1px solid #dddddd;
+}
+
+body:before{
+  content:'';
+  height:100%;
+  display:inline-block;
+  vertical-align:middle;
+}
+button{
+  background:#1AAB8A;
+  color:#fff;
+  border:none;
+  position:relative;
+  height:20px;
+  font-size:1em;
+  padding:0 2em;
+  cursor:pointer;
+  transition:800ms ease all;
+  outline:none;
+}
+button:hover{
+  background:#fff;
+  color:#1AAB8A;
+}
+button:before,button:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #1AAB8A;
+  transition:400ms ease all;
+}
+button:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+button:hover:before,button:hover:after{
+  width:100%;
+  transition:800ms ease all;
 }
   </style>
 <script>
@@ -514,14 +558,9 @@ worker.addEventListener('message', handleMessageFromWorker);
             <legend>Dodawanie</legend>
   
             <label>Podaj ID elementu, który chcesz edytować</label>
-            <input id="idInput"><br><br>
+            <input id="idInput">
   
             <table class="styled-table">
-              <thead>
-                <tr>
-                    <th>Podaj dane</th><th></th><th></th><th></th>
-                </tr>
-            </thead>
               <tr>
                 <th>
                   <label>Imie</label>
@@ -600,7 +639,7 @@ worker.addEventListener('message', handleMessageFromWorker);
               
             </th>
             <th>
-              <button id="deleteBaseButton">usun baze</button>
+              <button id="deleteBaseButton" style="background:#ff2f2f;">usun baze</button>
             </th>
           </tr>
         </table>
