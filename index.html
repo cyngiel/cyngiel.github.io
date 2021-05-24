@@ -1,12 +1,131 @@
 <!DOCTYPE html>
 <head>
   <style>
-    input:invalid {
-      border-color: rgb(197, 3, 3);
-    }
-    input:valid {
-      border-color: rgb(36, 175, 36);
-    }
+    body{
+    color:#000000;
+    margin-left:0;
+    margin-right:0;
+    margin-top:0;
+    margin-bottom:0;
+    margin-width:0;
+    margin-height:0;
+    padding: 5px;
+}
+
+
+input:invalid {
+  border-color: rgb(197, 3, 3);
+}
+input:valid {
+  border-color: rgb(36, 175, 36);
+}
+
+.generate_Button{
+  text-align: center;
+  height: 100px;
+  width: 100px;
+  padding: 0;
+}
+.styled-table {
+    border-collapse: collapse;
+
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width:100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.styled-main-table {
+    margin-top: -20px;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width:100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-main-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-main-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-main-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-main-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.styled-main-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+body:before{
+  content:'';
+  height:100%;
+  display:inline-block;
+  vertical-align:middle;
+}
+button{
+  background:#1AAB8A;
+  color:#fff;
+  border:none;
+  position:relative;
+  height:20px;
+  font-size:1em;
+  padding:0 2em;
+  cursor:pointer;
+  transition:800ms ease all;
+  outline:none;
+}
+button:hover{
+  background:#fff;
+  color:#1AAB8A;
+}
+button:before,button:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #1AAB8A;
+  transition:400ms ease all;
+}
+button:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+button:hover:before,button:hover:after{
+  width:100%;
+  transition:800ms ease all;
+}
   </style>
 <script>
   window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
@@ -128,7 +247,7 @@ window.location.reload();
 
   }
 
-  document.getElementById('filterButton').onclick = function(e){
+  function inputFilter(e) {
     var filter = document.getElementById('filterInput').value;
     if (!filter) {
       filter = "";
@@ -168,7 +287,7 @@ window.location.reload();
               + "</td><td>" + cursor.value.company 
               + "</td><td>" + cursor.value.id_card
               + "</td><td>" + cursor.value.phone
-              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+              + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
               + "</td></tr>";
               document.getElementById('delButton').onclick = function(e){
                 var id_del = parseInt(document.getElementById('delButton').value);
@@ -177,10 +296,12 @@ window.location.reload();
                 updatetable();
               }
           }
-        cursor.continue();
+        try {
+          cursor.continue();
+        } catch (Exception) {}
       }
     };
-  }
+  } document.getElementById('filterInput').addEventListener("input", inputFilter);
 
   function updatetable(){
     document.getElementById("clients-table-body").innerHTML = "";
@@ -194,7 +315,7 @@ window.location.reload();
       if (cursor) {
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
-            + "</td><td>" + cursor.value.surname
+            + "</td><span contenteditable='true'></span><td>" + cursor.value.surname
             + "</td><td>" + cursor.value.email
             + "</td><td>" + cursor.value.address
             + "</td><td>" + cursor.value.city 
@@ -203,7 +324,7 @@ window.location.reload();
             + "</td><td>" + cursor.value.company 
             + "</td><td>" + cursor.value.id_card
             + "</td><td>" + cursor.value.phone
-            + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+            + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
@@ -212,7 +333,9 @@ window.location.reload();
               updatetable();
            }
           }
+          try {
           cursor.continue();
+        } catch (Exception) {}
       }
     };
   }
@@ -224,66 +347,124 @@ window.location.reload();
 
 <body onload="init()">
 
-    <p>
-      <form id="addClientForm">
-        <fieldset id="addForm">
-          <legend>Dodawanie</legend>
-
-          <label>Imie</label>
-          <input id="nameInput" placeholder="Imie" required="true">
-          <label>Nazwisko</label>
-          <input id="surnameInput" placeholder="Nazwisko" required="true">
-          <label for="email">Email</label>
-          <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
-          <label for="phoneNumber">Tel.</label>
-          <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true"><br>
-          <label for="address">Adres</label>
-          <input type="text" id="addressInput" placeholder="ulica + numer" required="true">
-          <label>Miasto</label>
-          <input id="cityInput" placeholder="Miasto" required="true">         
-          <label for="postalCode">Kod pocztowy</label>
-          <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
-          <label for="idCard">nr. dowodu</label>
-          <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z]{3}[0-9]{6}"  maxlength="9" required="true"><br>
-          <label for="nipNumber">NIP</label>
-          <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
-          <label for="companyName">Nazwa Firmy</label>
-          <input id="companyInput" placeholder="firmopol" required="true"><br><br>
-          <button id="generateButton" style="width:25%">Generuj</button>
-          <button type="submit" id="addButton" style="width:25%">Dodaj</button>
-          
-
-        </fieldset>
-      </form>
-    </p>
+  <table class="styled-main-table">
+    <thead>
+      <tr>
+          <th>Generuj</th><th>Form</th>
+      </tr>
+      </thead>
+    <tr>
+      <th>
+        <button id="generateButton" class="generate_Button">Generuj</button>
+      </th>
+      <th style="text-align:left">
+        <p>
+          <form id="addClientForm">
+            <fieldset id="addForm">
+              <legend>Dodawanie</legend>
     
-    <p>
-      <fieldset id="searchForm">
-        <legend>Wyszukiwanie</legend>
-        <input id="filterInput">
-        <button id="filterButton">Szukaj</button>
-      </fieldset>
-    </p>
+              <label>Podaj ID elementu, który chcesz edytować</label>
+              <input id="idInput">
+    
+              <table class="styled-table">
+                <tr>
+                  <th>
+                    <label>Imie</label>
+                    <input id="nameInput" placeholder="Imie" required="true">
+                  </th>
+                  <th>
+                    <label>Nazwisko</label>
+                    <input id="surnameInput" placeholder="Nazwisko" required="true">
+                  </th>
+                  <th>
+                    <label for="email">Email</label>
+                    <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
+                  </th>
+                  <th>
+                    <label for="phoneNumber">Tel.</label>
+                    <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true">
+                  </th>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="cityInput">Miasto</label>
+                    <input id="cityInput" placeholder="Miasto" required="true"> 
+                  </th>
+                  <th>
+                    <label for="postalCode">Kod pocztowy</label>
+                    <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
+                  </th>
+                  <th>
+                    <label for="idCard">nr. dowodu</label>
+                    <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true">
+                  </th>
+                  <th></th>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="nipNumber">NIP</label>
+                    <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
+                  </th>
+                  <th>
+                    <label for="companyName">Nazwa Firmy</label>
+                    <input id="companyInput" placeholder="firmopol" required="true">
+                  </th>
+                  <th><label for="address">Adres</label>
+                    <input type="text" id="addressInput" placeholder="ulica + numer" required="true"></th><th></th>
+                </tr>
+              </table>
+  
+              
+              
+              <button type="submit" id="addButton" style="width:100%">Dodaj</button>
+              
+    
+            </fieldset>
+          </form>
+          
+        </p>
+      </th>
+    </tr>
+  </table>
+  
+      <p>
+        <fieldset id="searchForm">
+          <legend>Wyszukiwanie</legend>
+          <table style="width:100%;">
+            <tr>
+              <th>
+                <input id="filterInput" placeholder="Wyszukaj..."style="width:70%;">
+              </th>
 
-    <table id="clients-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Imie</th>
-            <th>Nazwisko</th>
-            <th>Email</th>
-            <th>Adres</th>
-            <th>Miasto</th>
-            <th>Kod pocztowy</th>
-            <th>NIP</th>
-            <th>Firma</th>
-            <th>nr. dowodu</th>
-            <th>tel.</th>
-          </tr>
-        </thead>
-        <tbody id="clients-table-body">
-        </tbody>
-    </table>
-    <button id="deleteBaseButton">usun baze</button>
-</body>
+              <th>
+                <button id="deleteBaseButton" style="background:#ff2f2f;">usun baze</button>
+              </th>
+            </tr>
+          </table>
+  
+        </fieldset>
+      </p>
+      
+      <table id="clients-table" class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Imie</th>
+              <th>Nazwisko</th>
+              <th>Email</th>
+              <th>Adres</th>
+              <th>Miasto</th>
+              <th>Kod pocztowy</th>
+              <th>NIP</th>
+              <th>Firma</th>
+              <th>nr. dowodu</th>
+              <th>tel.</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body">
+          </tbody>
+      </table>
+      
+  </body>
 </html>
