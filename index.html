@@ -12,28 +12,7 @@
     padding: 5px;
 }
 
-#image-div {
-    width: 100px;
-    height: 100px;
-    position: relative;
-    background-color: black;
-    background-position: center;
-    background-size: cover;
-    margin-left: auto;
-  margin-right: auto;
-    --filter: #FFFFFF;
-}
 
-#image-div::after {
-    background-color: var(--filter);
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 50%;
-}
 input:invalid {
   border-color: rgb(197, 3, 3);
 }
@@ -41,9 +20,12 @@ input:valid {
   border-color: rgb(36, 175, 36);
 }
 
-canvas {
-width: 100px;
-height: 100px;
+
+.generate_Button{
+  text-align: center;
+  height: 100px;
+  width: 100px;
+  padding: 0;
 }
 
 .styled-table {
@@ -331,50 +313,8 @@ window.location.reload();
 
   }
 
-  function getRecordContent(cursor) {
-    const item = {
-      name: cursor['name'],
-      surname: cursor['surname'],
-      email: cursor['email'],
-      address: cursor['address'], 
-      city: cursor['city'],
-      postal: cursor['postal'],
-      nip: cursor['nip'],
-      company: cursor['company'],
-      id_card: cursor['id_card'],
-      phone: cursor['phone'],
-      image: cursor['image']
-    }
-    console.log(item);
-    return item;
-  }
+  function inputFilter(e) {
 
-  function triggerFilter(id) {
-    var request = db.transaction(["clients"], "readwrite").objectStore("clients").get(id);
-    request.onsuccess = function(event) {
-      cursor = event.target.result;
-      const item = getRecordContent(cursor);
-      const worker = new Worker('webworker2.js');
-      worker.postMessage(JSON.stringify(item));
-      worker.addEventListener('message', handleMessageFromFilterWorker);
-    }
-  }
-
-  document.getElementById('previewButton').onclick = function(e) {
-    var id = parseInt(document.getElementById('previewInput').value);
-    var request = db.transaction(["clients"], "readwrite").objectStore("clients").get(id);
-    request.onsuccess = function(event){
-      cursor = event.target.result;
-      if (!cursor || !cursor['image'] || cursor['image'].lenght < 1) {
-        window.alert("Record doesn't exist or doesn't contain any image!");
-        clearImagePreview();
-      }
-      showImagePreview(cursor['image']);
-      triggerFilter(id);
-    }
-  }
-
-  document.getElementById('filterButton').onclick = function(e){
     var filter = document.getElementById('filterInput').value;
     if (!filter) {
       filter = "";
@@ -405,8 +345,18 @@ window.location.reload();
         )) {
           document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
             "</td><td>" + cursor.value.name 
-              + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
-              + "</td><td><button id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+
+              + "</td><td>" + cursor.value.surname
+              + "</td><td>" + cursor.value.email
+              + "</td><td>" + cursor.value.address
+              + "</td><td>" + cursor.value.city 
+              + "</td><td>" + cursor.value.postal
+              + "</td><td>" + cursor.value.nip
+              + "</td><td>" + cursor.value.company 
+              + "</td><td>" + cursor.value.id_card
+              + "</td><td>" + cursor.value.phone
+              + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
+
               + "</td></tr>";
               document.getElementById('delButton').onclick = function(e){
                 var id_del = parseInt(document.getElementById('delButton').value);
@@ -415,10 +365,12 @@ window.location.reload();
                 updatetable();
               }
           }
-        cursor.continue();
+        try {
+          cursor.continue();
+        } catch (Exception) {}
       }
     };
-  }
+  } document.getElementById('filterInput').addEventListener("input", inputFilter);
 
   function getDbObjects(filter = (object) => true) {
     let ret = new Promise((res, rej) => {
@@ -515,8 +467,18 @@ worker.addEventListener('message', handleMessageFromWorker);
       if (cursor) {
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
-            + "</td><td>" + cursor.value.surname + "</td><td>" + cursor.value.email + "</td><td>" + cursor.value.address + "</td><td>" + cursor.value.city  + "</td><td>" + cursor.value.postal + "</td><td>" + cursor.value.nip + "</td><td>" + cursor.value.company  + "</td><td>" + cursor.value.id_card + "</td><td>" + cursor.value.phone
-            + "</td><td><button style=\"background:#ff2f2f\" id=\"delButton\" value=\"" + cursor.key + "\">Usun</button>"
+
+            + "</td><span contenteditable='true'></span><td>" + cursor.value.surname
+            + "</td><td>" + cursor.value.email
+            + "</td><td>" + cursor.value.address
+            + "</td><td>" + cursor.value.city 
+            + "</td><td>" + cursor.value.postal
+            + "</td><td>" + cursor.value.nip
+            + "</td><td>" + cursor.value.company 
+            + "</td><td>" + cursor.value.id_card
+            + "</td><td>" + cursor.value.phone
+            + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
+
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
@@ -525,7 +487,9 @@ worker.addEventListener('message', handleMessageFromWorker);
               updatetable();
            }
           }
+          try {
           cursor.continue();
+        } catch (Exception) {}
       }
     };
   }
@@ -537,136 +501,125 @@ worker.addEventListener('message', handleMessageFromWorker);
 
 <body onload="init()">
 
-<table class="styled-main-table">
-  <thead>
+  <table class="styled-main-table">
+    <thead>
+      <tr>
+          <th>Generuj</th><th>Form</th>
+      </tr>
+      </thead>
     <tr>
-        <th>Podgląd obrazu</th><th>Form</th>
-    </tr>
-    </thead>
-  <tr>
-    <th>
-      <p>
-          <div id="image-div"><canvas id="canvas"></canvas>
-          </div>
-
-      </p>
-    </th>
-    <th style="text-align:left">
-      <p>
-        <form id="addClientForm">
-          <fieldset id="addForm">
-            <legend>Dodawanie</legend>
+      <th>
+        <button id="generateButton" class="generate_Button">Generuj</button>
+      </th>
+      <th style="text-align:left">
+        <p>
+          <form id="addClientForm">
+            <fieldset id="addForm">
+              <legend>Dodawanie</legend>
+    
+              <label>Podaj ID elementu, który chcesz edytować</label>
+              <input id="idInput">
+    
+              <table class="styled-table">
+                <tr>
+                  <th>
+                    <label>Imie</label>
+                    <input id="nameInput" placeholder="Imie" required="true">
+                  </th>
+                  <th>
+                    <label>Nazwisko</label>
+                    <input id="surnameInput" placeholder="Nazwisko" required="true">
+                  </th>
+                  <th>
+                    <label for="email">Email</label>
+                    <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
+                  </th>
+                  <th>
+                    <label for="phoneNumber">Tel.</label>
+                    <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true">
+                  </th>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="cityInput">Miasto</label>
+                    <input id="cityInput" placeholder="Miasto" required="true"> 
+                  </th>
+                  <th>
+                    <label for="postalCode">Kod pocztowy</label>
+                    <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
+                  </th>
+                  <th>
+                    <label for="idCard">nr. dowodu</label>
+                    <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true">
+                  </th>
+                  <th></th>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="nipNumber">NIP</label>
+                    <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
+                  </th>
+                  <th>
+                    <label for="companyName">Nazwa Firmy</label>
+                    <input id="companyInput" placeholder="firmopol" required="true">
+                  </th>
+                  <th><label for="address">Adres</label>
+                    <input type="text" id="addressInput" placeholder="ulica + numer" required="true"></th><th></th>
+                </tr>
+              </table>
   
-            <label>Podaj ID elementu, który chcesz edytować</label>
-            <input id="idInput">
-  
-            <table class="styled-table">
-              <tr>
-                <th>
-                  <label>Imie</label>
-                  <input id="nameInput" placeholder="Imie" required="true">
-                </th>
-                <th>
-                  <label>Nazwisko</label>
-                  <input id="surnameInput" placeholder="Nazwisko" required="true">
-                </th>
-                <th>
-                  <label for="email">Email</label>
-                  <input id="emailInput" type="email" id="email" name="email" placeholder="example@email.com" required="true">
-                </th>
-                <th>
-                  <label for="phoneNumber">Tel.</label>
-                  <input type="text" id="phoneInput" placeholder="123123123" name="phone_number" pattern="[0-9]{9}" maxlength="9" required="true">
-                </th>
-              </tr>
-              <tr>
-                <th>
-                  <label for="cityInput">Miasto</label>
-                  <input id="cityInput" placeholder="Miasto" required="true"> 
-                </th>
-                <th>
-                  <label for="postalCode">Kod pocztowy</label>
-                  <input type="text" id="postalInput" name="postal_code" placeholder="11-111" pattern="\d{2}-\d{3}"  maxlength="6" required="true">
-                </th>
-                <th>
-                  <label for="idCard">nr. dowodu</label>
-                  <input type="text" id="idCardInput" name="id_card" placeholder="ABC123456" pattern="[A-Z a-z]{3}[0-9]{6}"  maxlength="9" required="true">
-                </th>
-                <th></th>
-              </tr>
-              <tr>
-                <th>
-                  <label for="nipNumber">NIP</label>
-                  <input type="text" id="nipInput" name="nip_number" placeholder="123-456-78-90" pattern="((\d{3}[- ]\d{3}[- ]\d{2}[- ]\d{2})|(\d{3}[- ]\d{2}[- ]\d{2}[- ]\d{3}))" title="Numer NIP" maxlength="13" required="true">
-                </th>
-                <th>
-                  <label for="companyName">Nazwa Firmy</label>
-                  <input id="companyInput" placeholder="firmopol" required="true">
-                </th>
-                <th><label for="address">Adres</label>
-                  <input type="text" id="addressInput" placeholder="ulica + numer" required="true"></th><th></th>
-              </tr>
-            </table>
-
-            
-            <label for="image">JPG url</label>
-            <input type="text" id="imageInput" placeholder="https://..." name="image" pattern="((https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|(https?:\/\/(?:www\.|(?!www)))?[a-zA-Z0-9]+\.[^\s]{2,}|(www\.)?[a-zA-Z0-9]+\.[^\s]{2,})" title="Correct url">Generowane z https://placem.at<br><br>
-            <button id="generateButton" style="width:25%">Dodaj losowe</button>
-            <button type="submit" id="addButton" style="width:25%">Dodaj</button>
-            
-  
-          </fieldset>
-        </form>
-      </p>
-      <button id="webworkerButton">Webworker- zmien text</button><br><br>  
-    </th>
-  </tr>
-</table>
-
-    <p>
-      <fieldset id="searchForm">
-        <legend>Wyszukiwanie</legend>
-        <table style="width:100%;">
-          <tr>
-            <th>
-              <input id="filterInput">
-              <button id="filterButton">Szukaj</button>
-            </th>
-            <th>
-              <label>podaj ID rekordu aby wyswietlic jego obraz:</label>
-              <input id="previewInput">
-              <button id="previewButton">Wyswietl</button>
               
-            </th>
-            <th>
-              <button id="deleteBaseButton" style="background:#ff2f2f;">usun baze</button>
-            </th>
-          </tr>
-        </table>
+              
+              <button type="submit" id="addButton" style="width:100%">Dodaj</button>
+              
+    
+            </fieldset>
+          </form>
+          
+        </p>
+      </th>
+    </tr>
+  </table>
+  
+      <p>
+        <fieldset id="searchForm">
+          <legend>Wyszukiwanie</legend>
+          <table style="width:100%;">
+            <tr>
+              <th>
+                <input id="filterInput" placeholder="Wyszukaj..."style="width:70%;">
+              </th>
 
-      </fieldset>
-    </p>
-    
-    <table id="clients-table" class="styled-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Imie</th>
-            <th>Nazwisko</th>
-            <th>Email</th>
-            <th>Adres</th>
-            <th>Miasto</th>
-            <th>Kod pocztowy</th>
-            <th>NIP</th>
-            <th>Firma</th>
-            <th>nr. dowodu</th>
-            <th>tel.</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="clients-table-body">
-        </tbody>
-    </table>
-    
-</body>
+              <th>
+                <button id="deleteBaseButton" style="background:#ff2f2f;">usun baze</button>
+              </th>
+            </tr>
+          </table>
+  
+        </fieldset>
+      </p>
+      
+      <table id="clients-table" class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Imie</th>
+              <th>Nazwisko</th>
+              <th>Email</th>
+              <th>Adres</th>
+              <th>Miasto</th>
+              <th>Kod pocztowy</th>
+              <th>NIP</th>
+              <th>Firma</th>
+              <th>nr. dowodu</th>
+              <th>tel.</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body">
+          </tbody>
+      </table>
+      
+  </body>
+
 </html>
