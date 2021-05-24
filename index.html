@@ -21,12 +21,14 @@ input:valid {
   border-color: rgb(36, 175, 36);
 }
 
+
 .generate_Button{
   text-align: center;
   height: 100px;
   width: 100px;
   padding: 0;
 }
+
 .styled-table {
     border-collapse: collapse;
 
@@ -134,8 +136,27 @@ button:hover:before,button:hover:after{
   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
   if (!window.indexedDB) {
-    window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
+    window.alert("Brak wsparcia dla IndexDB");
   }
+
+  function showImagePreview(image_url, rgba='rgba(0, 0, 0, 0.5)') {
+    clearImagePreview();
+    var canvas = document.querySelector('canvas');
+    var ctx = canvas.getContext('2d');
+    image = new Image();
+    image.src = image_url;
+    image.onload = function() {
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = rgba;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } 
+  }
+
+  function clearImagePreview() {
+    var canvas = document.querySelector('canvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  }
+
 
   function init(){
     var request = window.indexedDB.open("ClientDatabase", 1);
@@ -166,6 +187,7 @@ button:hover:before,button:hover:after{
     document.getElementById("phoneInput").value = Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString() + Math.floor(Math.random() * 899 + 100).toString(); 
     document.getElementById("nipInput").value = Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 899 + 100).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString() + '-' + Math.floor(Math.random() * 89 + 10).toString();
     document.getElementById("idCardInput").value = upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + upperCase[Math.floor(Math.random() * upperCase.length)] + Math.floor(Math.random() * 899999 + 100000).toString();
+    document.getElementById("imageInput").value = `https://placem.at/${randomText(['places', 'people', 'things'])}?`;
   }
 
   document.getElementById('deleteBaseButton').onclick = function(e){
@@ -195,6 +217,7 @@ window.location.reload();
     objectStore.createIndex("company", "company", {unique: false});
     objectStore.createIndex("id_card", "id_card", {unique: false});
     objectStore.createIndex("phone", "phone", {unique: false});
+    objectStore.createIndex("image", "image", {unique: false});
     objectStore.transaction.oncomplete = function(event) {
       
     };
@@ -202,7 +225,7 @@ window.location.reload();
 
   document.getElementById('addClientForm').onsubmit = function(e) {
     e.preventDefault();
-
+    var bid = document.getElementById('idInput').value;
     var bname = document.getElementById('nameInput').value;
     var bsurname = document.getElementById('surnameInput').value;
     var bemail = document.getElementById('emailInput').value;
@@ -211,44 +234,88 @@ window.location.reload();
     var bpostal = document.getElementById('postalInput').value;
     var bnip = document.getElementById('nipInput').value;
     var bcompany = document.getElementById('companyInput').value;
-    var bid_card = document.getElementById('idCardInput').value;
+    var bcard = document.getElementById('idCardInput').value;
     var bphone = document.getElementById('phoneInput').value;
+    var bimage = document.getElementById('imageInput').value;
 
     if (!bname || !bsurname || !bemail || !baddress || !bcity || !bpostal || !bphone) {
-      window.alert("Fill the form correctly!");
+      window.alert("Uzupelnij formularz");
       return;
     }
 
-    const book_item = {
-      name: bname,
-      surname: bsurname,
-      email: bemail,
-      address: baddress, 
-      city: bcity, 
-      postal: bpostal,
-      nip: bnip,
-      company: bcompany,
-      id_card: bid_card,
-      phone: bphone
+    if (bid != "") {
+      bid = parseInt(bid);
+      var transaction = db.transaction(["clients"], "readwrite");
+      transaction.objectStore("clients").get(bid).onsuccess = function(event) {
+        var cursor = event.target.result;
+        if (cursor) {
+          const book_item = {
+            id: bid,
+            name: bname,
+            surname: bsurname,
+            email: bemail,
+            address: baddress, 
+            city: bcity, 
+            postal: bpostal,
+            nip: bnip,
+            company: bcompany,
+            id_card: bcard,
+            phone: bphone,
+            image: bimage
+          }
+          var id_del = bid;
+          var transaction = db.transaction(["clients"], "readwrite");
+          var request = transaction.objectStore("clients").delete(id_del);
+          var transaction = db.transaction(["clients"], "readwrite");
+          transaction.oncomplete = function(event) {
+            console.log("all done with transaction");
+          };
+          transaction.onerror = function(event){
+            console.dir(event);
+          };
+          var clientsObjectStore = transaction.objectStore("clients");
+          var request = clientsObjectStore.add(book_item);
+          request.onsuccess = function(event){
+            console.log("added item");
+            updatetable();
+          };
+        } else {
+          window.alert("Brak elementu o takim ID");
+        }
+      };
+    } else {
+      const book_item = {
+        name: bname,
+        surname: bsurname,
+        email: bemail,
+        address: baddress, 
+        city: bcity, 
+        postal: bpostal,
+        nip: bnip,
+        company: bcompany,
+        id_card: bcard,
+        phone: bphone,
+        image: bimage
+      }
+      var transaction = db.transaction(["clients"], "readwrite");
+      transaction.oncomplete = function(event) {
+        console.log("all done with transaction");
+      };
+      transaction.onerror = function(event){
+        console.dir(event);
+      };
+      var clientsObjectStore = transaction.objectStore("clients");
+      var request = clientsObjectStore.add(book_item);
+      request.onsuccess = function(event){
+        console.log("added item");
+      };
     }
-    var transaction = db.transaction(["clients"], "readwrite");
-    transaction.oncomplete = function(event) {
-      console.log("all done with transaction");
-    };
-    transaction.onerror = function(event){
-      console.dir(event);
-    };
-    var clientsObjectStore = transaction.objectStore("clients");
-    var request = clientsObjectStore.add(book_item);
-    request.onsuccess = function(event){
-      console.log("added item");
-    };
-
     updatetable();
 
   }
 
   function inputFilter(e) {
+
     var filter = document.getElementById('filterInput').value;
     if (!filter) {
       filter = "";
@@ -279,6 +346,7 @@ window.location.reload();
         )) {
           document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
             "</td><td>" + cursor.value.name 
+
               + "</td><td>" + cursor.value.surname
               + "</td><td>" + cursor.value.email
               + "</td><td>" + cursor.value.address
@@ -289,6 +357,7 @@ window.location.reload();
               + "</td><td>" + cursor.value.id_card
               + "</td><td>" + cursor.value.phone
               + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
+
               + "</td></tr>";
               document.getElementById('delButton').onclick = function(e){
                 var id_del = parseInt(document.getElementById('delButton').value);
@@ -304,6 +373,89 @@ window.location.reload();
     };
   } document.getElementById('filterInput').addEventListener("input", inputFilter);
 
+  function getDbObjects(filter = (object) => true) {
+    let ret = new Promise((res, rej) => {
+      let objects = [];
+      if (db) {
+        var store = db.transaction(['clients'], 'readonly').objectStore('clients');
+        store.openCursor().onsuccess = (e) => {
+          var c = e.target.result;
+          if (c) {
+            if (filter(c.value)) {
+              objects.push(c.value);
+            }
+            c.continue();
+          } else {
+            res(objects);
+          }
+        };
+      }
+    });
+    return ret;
+  }
+
+  function getFormContent() {
+    var bname = document.getElementById('nameInput').value;
+    var bsurname = document.getElementById('surnameInput').value;
+    var bemail = document.getElementById('emailInput').value;
+    var baddress = document.getElementById('addressInput').value;
+    var bcity = document.getElementById('cityInput').value;
+    var bpostal = document.getElementById('postalInput').value;
+    var bnip = document.getElementById('nipInput').value;
+    var bcompany = document.getElementById('companyInput').value;
+    var bcard = document.getElementById('idCardInput').value;
+    var bphone = document.getElementById('phoneInput').value;
+    var bimage = document.getElementById('imageInput').value;
+
+    const item = {
+      name: bname,
+      surname: bsurname,
+      email: bemail,
+      address: baddress, 
+      city: bcity, 
+      postal: bpostal,
+      nip: bnip,
+      company: bcompany,
+      id_card: bcard,
+      phone: bphone,
+      image: bimage
+    }
+    return item;
+  }
+
+
+  
+document.getElementById('webworkerButton').onclick = function(event) {
+const worker = new Worker('webworker.js');
+
+const item = getFormContent();
+worker.postMessage(JSON.stringify(item));
+worker.addEventListener('message', handleMessageFromWorker);
+}
+
+  function handleMessageFromWorker(e) {
+    result = JSON.parse(e.data);
+    document.getElementById("nameInput").value = result['name'];
+    document.getElementById("surnameInput").value = result['surname'];
+    document.getElementById("emailInput").value = result['email'];
+    document.getElementById("addressInput").value = result['address'];
+    document.getElementById("cityInput").value = result['city'];
+    document.getElementById("postalInput").value = result['postal'];
+    document.getElementById("companyInput").value = result['company'];
+    document.getElementById("phoneInput").value = result['phone'];
+    document.getElementById("nipInput").value = result['nip'];
+    document.getElementById("idCardInput").value = result['id_card'];
+    document.getElementById("imageInput").value = result['image'];
+  }
+
+  function handleMessageFromFilterWorker(e) {
+    var result = JSON.parse(e.data);
+    var image = document.getElementById('imageInput').value;
+    document.getElementById('image-div').style.setProperty('--filter', `rgb(${result.R}, ${result.G}, ${result.B})`);
+    document.getElementById('image-div').style.backgroundImage = `url('${image}')`;
+    showImagePreview(image, `rgba(${result.R}, ${result.G}, ${result.B}, 0.5)`);
+  }
+
   function updatetable(){
     document.getElementById("clients-table-body").innerHTML = "";
     var request = db.transaction("clients").objectStore("clients").openCursor();
@@ -316,6 +468,7 @@ window.location.reload();
       if (cursor) {
         document.getElementById("clients-table-body").innerHTML += "<tr><td>" + cursor.key + 
           "</td><td>" + cursor.value.name 
+
             + "</td><span contenteditable='true'></span><td>" + cursor.value.surname
             + "</td><td>" + cursor.value.email
             + "</td><td>" + cursor.value.address
@@ -326,6 +479,7 @@ window.location.reload();
             + "</td><td>" + cursor.value.id_card
             + "</td><td>" + cursor.value.phone
             + "</td><td><button id=\"delButton\"  style=\"background:#ff2f2f\" value=\"" + cursor.key + "\">Usun</button>"
+
             + "</td></tr>";
             document.getElementById('delButton').onclick = function(e){
               var id_del = parseInt(document.getElementById('delButton').value);
@@ -468,4 +622,5 @@ window.location.reload();
       </table>
       
   </body>
+
 </html>
