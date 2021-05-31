@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+form * {
+  display: block;
+  margin: 10px;
+}
+input:invalid {
+      border-color: rgb(197, 3, 3);
+    }
+    input:valid {
+      border-color: rgb(36, 175, 36);
+    }
+</style>
+<script language="Javascript" >
+function download(filename, text) {
+  var pom = document.createElement('a');
+  pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + 
+
+encodeURIComponent(text));
+  pom.setAttribute('download', filename);
+
+  pom.style.display = 'none';
+  document.body.appendChild(pom);
+
+  pom.click();
+
+  document.body.removeChild(pom);
+}
+</script>
+</head>
+<body>
+
+<form onsubmit="download('faktura', 'Imie: ' + this['name'].value + '\n' 
+                                + 'Nazwisko: ' + this['lname'].value + '\n'
+                                + 'Produkt: ' + this['prod'].value + '\n'
+                                + 'Uwagi: ' + this['text'].value)">
+
+  <label for="fname">Imie:</label>
+  <input type="text" id="fname" name="name" placeholder="Imie.." required="true">
+  <label for="lname">Nazwisko:</label>
+  <input type="text" id="lname" name="lname" placeholder="Nazwisko.." required="true">
+  <label for="cars">Produkt:</label>
+  <select name="prod" id="cars">
+    <option value="Kawa czarna">Kawa czarna</option>
+    <option value="Kawa biala">Kawa biala</option>
+    <option value="Sok">Sok</option>
+    <option value="Woda">Woda</option>
+  </select>
+
+  <textarea rows=3 cols=50 name="text" placeholder="Uwagi do zamowienia" required="false"></textarea>
+  <input type="submit" value="Pobierz fakture">
+</form>
+</body>
+</html>
